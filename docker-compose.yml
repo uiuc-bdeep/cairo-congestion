@@ -1,0 +1,10 @@
+cairo-crawler:
+    build: .
+    command: python -u controller.py
+    volumes: 
+        - .:/app
+        - ./data:/data
+    links:
+        - db
+db:
+    image: mongo:latest
