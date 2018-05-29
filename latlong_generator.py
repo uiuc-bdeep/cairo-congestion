@@ -6,7 +6,6 @@
             This script subdivides a given area in Cairo, Egypt into specified
             x by x grid, and y latitude/longitude pairs will be randomly
             sampled from each cells of the grid.
-
             a---------x---------x---------b
             |         |         |         |
             |  (2,0)  |  (2,1)  |  (2,2)  |
@@ -20,7 +19,6 @@
             |  (0,0)  |  (0,1)  |  (0,2)  |
             |         |         |         |
             c---------x---------x---------d
-
             a, b, c, and d are the lat/longs of the top-left, top-right,
             bottom-left, and bottom-right, respectively. In this case, x = 3,
             hence the 3x3 grid.
@@ -50,17 +48,14 @@ CENTER = (30.0621, 31.346)
 
 def generate_cells(amt=20, t_l=TOP_LEFT, t_r=TOP_RIGHT, b_l=BOT_LEFT, b_r=BOT_RIGHT):
     """Subdivides interested square area into specified x by x
-
     Uses the given lat/long pairs of each four corners of the square area and
     the amount x given by the parameter to divide said area into x by x grid.
-
     Args:
         amt: The amount of cells in the columns AND rows.
         t_l: The lat/long of the top-left corner
         t_r: The lat/long of the top-right corner
         b_l: The lat/long of the bottom-left corner
         b_r: The lat/long of the bottom-right corner
-
     Returns:
         cells: A dictionary in which keys are the (x,y) coordinate of the cell
                and the values are the lat/longs of the bottom-left and top-
@@ -94,14 +89,11 @@ def generate_cells(amt=20, t_l=TOP_LEFT, t_r=TOP_RIGHT, b_l=BOT_LEFT, b_r=BOT_RI
 
 def generate_latlongs(amt=10):
     """Generates specified amount of random lat/longs from every cells
-
     Randomly samples a specified amount of lat/long pairs from every single
     cells and returns each set of lat/longs with its corresponding coordinates
     in dictionary form.
-
     Args:
         amt: The amount of samples to take in each cell.
-
     Returns:
         latlong_list: A list of dictionaries, each of which contains key-value
                       pairs of coordinates and a set of randomly sampled
