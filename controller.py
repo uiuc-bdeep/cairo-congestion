@@ -11,8 +11,9 @@ import os
 import logging
 import json
 import requests
-from crawler import crawl_trip
 from latlong_generator import generate_latlongs
+from crawler import crawl_trip
+from csv_writer import make_csv
 from pymongo import MongoClient
 
 def logging_init():
@@ -82,6 +83,7 @@ def main():
     num_latlongs = load_latlongs()
 
     crawl_trip(num_latlongs)
+    make_csv()
 
 
 if __name__ == "__main__":

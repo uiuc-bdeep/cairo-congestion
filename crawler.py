@@ -54,7 +54,7 @@ def slack_notification(slack_msg):
 
 def request_API(latlongs_o, latlongs_d):
 	base_url = "https://maps.googleapis.com/maps/api/distancematrix/json?"
-	final_url = base_url+"origins="+latlongs_o+"&destinations="+latlongs_d+"&departure_time=now&duration_in_traffic=pessimistic&key="+API_key
+	final_url = base_url+"origins="+latlongs_o+"&destinations="+latlongs_d+"&departure_time=now&key="+API_key
 	print(final_url)
 
 	try:
@@ -92,23 +92,28 @@ def crawl_trip(num_latlongs):
 	latlongs_d = ''
 	# max_docs = int(50 / num_latlongs ** 2)
 
-	slack_notification("Cairo Crawler: Start Crawling Trips")
+	# slack_notification("Cairo Crawler: Start Crawling Trips")
+	#
+	# for document in cursor:
+	# 	for latlong in document['latlongs_o']:
+	# 		if latlongs_o == '' :
+	# 			latlongs_o += str(latlong[0]) + ',' + str(latlong[1])
+	# 		else:
+	# 			latlongs_o += '|' + str(latlong[0]) + ',' + str(latlong[1])
+	# 	for latlong in document['latlongs_d']:
+	# 		if latlongs_d == '' :
+	# 			latlongs_d += str(latlong[0]) + ',' + str(latlong[1])
+	# 		else:
+	# 			latlongs_d += '|' + str(latlong[0]) + ',' + str(latlong[1])
+	#
+	# 	request_API(latlongs_o, latlongs_d)
+	# 	latlongs_o = ''
+	# 	latlongs_d = ''
+	# 	time.sleep(1)
 
-	for document in cursor:
-		for latlong in document['latlongs_o']:
-			if latlongs_o == '' :
-				latlongs_o += str(latlong[0]) + ',' + str(latlong[1])
-			else:
-				latlongs_o += '|' + str(latlong[0]) + ',' + str(latlong[1])
-		for latlong in document['latlongs_d']:
-			if latlongs_d == '' :
-				latlongs_d += str(latlong[0]) + ',' + str(latlong[1])
-			else:
-				latlongs_d += '|' + str(latlong[0]) + ',' + str(latlong[1])
-
-		request_API(latlongs_o, latlongs_d)
-		latlongs_o = ''
-		latlongs_d = ''
-		time.sleep(1)
+# 0.016877118743416,31.369837007062927|30.017021077370128,31.37504143475955|30.01640641787756,31.371254840360127|30.012293527133682,31.37004216687616|30.010348272546235,31.373091693050185&destinations=30.011917246091414,31.36908297493297|30.018204194261003,31.366151940799767|30.01092491827021,31.36846533576398|30.013939982282253,31.375367888564387|30.01727926408631,31.369572999179546
+	latlongs_o = '0.016877118743416,31.369837007062927|30.017021077370128,31.37504143475955'
+	latlongs_d = '30.011917246091414,31.36908297493297|30.018204194261003,31.366151940799767'
+	request_API(latlongs_o, latlongs_d)
 
 	slack_notification("Cairo Crawler: Crawling Successful")
