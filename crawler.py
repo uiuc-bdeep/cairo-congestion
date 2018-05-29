@@ -10,9 +10,9 @@
 import os
 import json
 import requests
-import datetime
 import logging
 import time
+from pprint import pprint
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 
@@ -52,82 +52,68 @@ def slack_notification(slack_msg):
         logger.info("Cairo Crawler: Error while sending controller Slack notification")
         logger.info(e)
 
-def crawl_trip():
-	"""
-		Description.
-	"""
-	# Set up database connection.
-	client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'],27017)
-	db = client.cairo_trial
-
-	record = db.latlongs
-	cursor = record.find({})
-
-# latlongs_o': [[29.982354914326784, 31.253579544029403], [29.979453202823123, 31.250049341374503], [29.979151159470668, 31.25183382039455], [29.977454807624724, 31.253558042041572], [29.982923889889484, 31.255827854760376]], 'latlongs_d': [[29.978663178469038, 31.248589167502928], [29.981826885710493, 31.249033127260788], [29.982909663230053, 31.251046868558173], [29.980385993961043, 31.248505063413624], [29.982056992125532, 31.255021659504397]]
-
-	# latlongs_o = ''
-	# latlongs_d = ''
-	latlongs_o = '29.982354914326784,31.253579544029403|29.979453202823123,31.250049341374503'
-	latlongs_d = '29.978663178469038,31.248589167502928|29.981826885710493,31.249033127260788'
-	count = 0
-
-	# for document in cursor:
-	# 	if count > 5:
-	# 		break
-	# 	for latlong in document['latlongs_o']:
-	# 		if latlongs_o == '' :
-	# 			latlongs_o += str(latlong[0]) + ',' + str(latlong[1])
-	# 		else:
-	# 			latlongs_o += '|' + str(latlong[0]) + ',' + str(latlong[1])
-	# 	for latlong in document['latlongs_d']:
-	# 		if latlongs_d == '' :
-	# 			latlongs_d += str(latlong[0]) + ',' + str(latlong[1])
-	# 		else:
-	# 			latlongs_d += '|' + str(latlong[0]) + ',' + str(latlong[1])
-	# 	count += 1
-
-	slack_notification("Cairo Crawler: Start Crawling Trips")
-
+def request_API(latlongs_o, latlongs_d):
 	base_url = "https://maps.googleapis.com/maps/api/distancematrix/json?"
 	final_url = base_url+"origins="+latlongs_o+"&destinations="+latlongs_d+"&departure_time=now&duration_in_traffic=pessimistic&key="+API_key
-
 	print(final_url)
 
 	try:
 		r = requests.get(final_url)
 		response = json.loads(r.content)
 
-		t_traffic = "0"
-		t_dist = "0"
-		t_time = "0"
 		trip_list = []
-		trip = {}
-		print(response)
-
 		if response["status"] == "OK":
 			for row in response['rows']:
 				for elem in row['elements']:
-					print(elem)
-					print(elem['distance']['value'])
-					print("====")
-					time.sleep(1)
-			# for it1 in [0]['elements'][0]:
-			# 	t_dist = str(response['rows'][0]['elements'][0]['distance']['value'])
-			# for it2 in response['rows'][0]['elements'][0].get('duration',[]):
-			# 	t_time = str(response['rows'][0]['elements'][0]['duration']['value'])
-			# for it3 in response['rows'][0]['elements'][0].get('duration_in_traffic',[]):
-			# 	t_traffic = str(response['rows'][0]['elements'][0]['duration_in_traffic']['value'])
-		slack_notification("Cairo Crawler: Crawling Successful")
+					trip = {'distance':elem['distance']['value'], 'duration':elem['duration']['value'],
+					'duration_in_traffic':elem['duration_in_traffic']['value']}
+					trip_list.append(trip)
+		else:
+			print("Over the quota.")
 
 	except requests.exceptions.RequestException as e:
 		slack_notification("Cairo Crawler: Error when crawling")
-		t_traffic = "-1"
-		t_dist = "-1"
-		t_time = "-1"
 
-	print(t_dist)
-	print(t_time)
-	print(t_traffic)
+	client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'],27017)
+	db = client.cairo_trial
+	db.crawled_trips.insert_many(trip_list)
 
-	db.crawled_trips.insert_many({"_id" : db_id}, {"$set": {t_type: {"distance" : t_dist , "time" : t_time , "traffic" : t_traffic }}})
+def crawl_trip(num_latlongs):
+	"""
+		Description.
+	"""
+	client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'],27017)
+	db = client.cairo_trial
+
+	record = db.latlongs
+	cursor = record.find({})
+
+	latlongs_o = ''
+	latlongs_d = ''
+	max_docs = int(50 / num_latlongs ** 2)
+	count = 0
+
+	slack_notification("Cairo Crawler: Start Crawling Trips")
+
+	for document in cursor:
+		if count == max_docs:
+			request_API(latlongs_o, latlongs_d)
+			count = 0
+			latlongs_o = ''
+			latlongs_d = ''
+			time.sleep(1)
+
+		for latlong in document['latlongs_o']:
+			if latlongs_o == '' :
+				latlongs_o += str(latlong[0]) + ',' + str(latlong[1])
+			else:
+				latlongs_o += '|' + str(latlong[0]) + ',' + str(latlong[1])
+		for latlong in document['latlongs_d']:
+			if latlongs_d == '' :
+				latlongs_d += str(latlong[0]) + ',' + str(latlong[1])
+			else:
+				latlongs_d += '|' + str(latlong[0]) + ',' + str(latlong[1])
+
+		count += 1
+
 	slack_notification("Cairo Crawler: Crawling Successful")

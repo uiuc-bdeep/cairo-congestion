@@ -1,17 +1,17 @@
 """
-        File Name: controller.py
-        Author: Brian Ko (swko2@illinois.edu)
-        Maintainer: Brian Ko (swko2@illinois.edu)
-        Description:
-            This is the main script that controls the initiation, scheduling,
-            and the operation of the Cairo crawler.
+File Name: controller.py
+Author: Brian Ko (swko2@illinois.edu)
+Maintainer: Brian Ko (swko2@illinois.edu)
+Description:
+    This is the main script that controls the initiation, scheduling,
+    and the operation of the Cairo crawler.
 """
 
 import os
 import logging
 import json
 import requests
-import crawler
+from crawler import crawl_trip
 from latlong_generator import generate_latlongs
 from pymongo import MongoClient
 
@@ -36,7 +36,7 @@ def slack_notification(slack_msg):
     """Send slack notification
     Send slack notification with custom messages for different purposes
     Args:
-        slack_msg: The custom message being sent.
+    slack_msg: The custom message being sent.
     """
 
     slack_url = "https://hooks.slack.com/services/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"
@@ -62,26 +62,26 @@ def load_latlongs():
     slack_msg = "Cairo Crawler: Generating Random Latitude/Longitudes"
     slack_notification(slack_msg)
 
-    latlong_list = generate_latlongs()
-
-    #filename = "latlongs{0}.json"
-
-    #for x in range(len(latlong_list)):
-    #    coord = latlong_list[x]["coord"]
-    #    with open(filename.format(coord), 'w') as f:
-    #        json.dump(latlong_list[x], f)
+    latlong_list, num_latlongs = generate_latlongs()
 
     record.insert_many(latlong_list)
 
     slack_msg = "Cairo Crawler: Inserted Random Latitude/Longitudes into MongoDB"
     slack_notification(slack_msg)
+    return num_latlongs
 
 def main():
-   slack_msg = "Cairo Crawler: Initiating Controller"
-   slack_notification(slack_msg)
+    slack_msg = "Cairo Crawler: Initiating Controller"
+    slack_notification(slack_msg)
 
-   load_latlongs()
-   crawler.crawl_trip()
+    client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'],27017)
+    db = client.cairo_trial
+    db.latlongs.drop()
+    db.crawled_trips.drop()
+
+    num_latlongs = load_latlongs()
+
+    crawl_trip(num_latlongs)
 
 
 if __name__ == "__main__":

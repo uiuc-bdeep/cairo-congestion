@@ -26,6 +26,7 @@
 
 import random
 import logging
+import time
 #import matplotlib.pyplot as plt
 #import pymongo
 #from geopy.distance import geodesic
@@ -99,7 +100,6 @@ def generate_latlongs(amt=10):
                       pairs of coordinates and a set of randomly sampled
                       lat/long pairs.
     """
-
     random.seed(0) # Seeded for testing purposes
     cells = generate_cells()
     latlong_list = []
@@ -128,4 +128,4 @@ def generate_latlongs(amt=10):
         latlong_dict["latlongs_d"] = latlongs_dest
         latlong_list.append(latlong_dict)
 
-    return latlong_list
+    return latlong_list, int(amt/2)
