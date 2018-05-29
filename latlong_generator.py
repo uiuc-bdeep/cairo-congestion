@@ -116,7 +116,7 @@ def generate_latlongs(amt=10):
         latlongs_dest = []
 
         # Randomly sample 'amt' amount of lat/long pairs
-        for _ in range(amt/2):
+        for _ in range(int(amt/2)):
             latitude_o = random.uniform(*lats)
             longitude_o = random.uniform(*longs)
             latitude_d = random.uniform(*lats)

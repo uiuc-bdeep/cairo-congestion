@@ -11,17 +11,16 @@ import os
 import logging
 import json
 import requests
+import crawler
 from latlong_generator import generate_latlongs
 from pymongo import MongoClient
 
 def logging_init():
     """Initiates the logger
-
     Initiates the logger, the logger handler (for file handling), and the
     formatter
-
     """
- 
+
     logger = logging.getLogger("cairo_crawler")
     logger.setLevel(logging.INFO)
 
@@ -35,15 +34,12 @@ def logging_init():
 
 def slack_notification(slack_msg):
     """Send slack notification
-
     Send slack notification with custom messages for different purposes
-
     Args:
         slack_msg: The custom message being sent.
-
     """
- 
-   slack_url = "https://hooks.slack.com/services/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"
+
+    slack_url = "https://hooks.slack.com/services/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"
 
     payload = {"text": slack_msg}
 
@@ -55,10 +51,8 @@ def slack_notification(slack_msg):
 
 def load_latlongs():
     """Generates and stores the lat/longs in a database
-
     Calls the generate_latlongs method from latlong_generator.py and stores
     the generated data in a MongoDB database.
-
     """
 
     client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'], 27017)
@@ -87,6 +81,7 @@ def main():
    slack_notification(slack_msg)
 
    load_latlongs()
+   crawler.crawl_trip()
 
 
 if __name__ == "__main__":
