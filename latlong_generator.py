@@ -120,15 +120,20 @@ def generate_latlongs(amt=10):
         lats = [latlong[0][0], latlong[1][0]]
         longs = [latlong[0][1], latlong[1][1]]
         latlong_dict = {}
-        latlongs = []
+        latlongs_orig = []
+        latlongs_dest = []
 
         # Randomly sample 'amt' amount of lat/long pairs
-        for _ in range(amt):
-            latitude = random.uniform(*lats)
-            longitude = random.uniform(*longs)
-            latlongs.append([latitude, longitude])
+        for _ in range(amt/2):
+            latitude_o = random.uniform(*lats)
+            longitude_o = random.uniform(*longs)
+            latitude_d = random.uniform(*lats)
+            longitude_d = random.uniform(*longs)
+            latlongs_orig.append([latitude_o, longitude_o])
+            latlongs_dest.append([latitude_d, longitude_d])
         latlong_dict["coord"] = coord
-        latlong_dict["latlongs"] = latlongs
+        latlong_dict["latlongs_o"] = latlongs_orig
+        latlong_dict["latlongs_d"] = latlongs_dest
         latlong_list.append(latlong_dict)
 
     return latlong_list
