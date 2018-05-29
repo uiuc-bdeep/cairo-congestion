@@ -28,9 +28,8 @@
 
 import random
 import logging
-#import pymongo
 #import matplotlib.pyplot as plt
-#from mpl_toolkits.basemap import Basemap
+#import pymongo
 #from geopy.distance import geodesic
 
 # Lat/Longs of each four corners of interested square area of Cairo, Egypt
@@ -68,12 +67,14 @@ def generate_cells(amt=20, t_l=TOP_LEFT, t_r=TOP_RIGHT, b_l=BOT_LEFT, b_r=BOT_RI
                right corner of the corresponding cell.
     """
 
+    # Set bottom-left as the base to which to add increments
     lats = [b_l[0]]*(amt+1)
     longs = [b_l[1]]*(amt+1)
 
     lat_diff = t_l[0]-b_l[0]
     long_diff = b_r[1]-b_l[1]
 
+    # Generate lat/long points by adding small, consistent increments
     lats = [(l + lat_diff*x/amt) for x, l in enumerate(lats)]
     longs = [(l + long_diff*x/amt) for x, l in enumerate(longs)]
 
@@ -111,6 +112,8 @@ def generate_latlongs(amt=10):
     cells = generate_cells()
     latlong_list = []
 
+    # Generate dictionaries of every cell's respective coordinates and set of
+    # lat/long pairs
     for cell in cells:
         coord = cell["coord"]
         latlong = cell["latlongs"]
