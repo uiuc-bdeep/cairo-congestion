@@ -90,19 +90,11 @@ def crawl_trip(num_latlongs):
 
 	latlongs_o = ''
 	latlongs_d = ''
-	max_docs = int(50 / num_latlongs ** 2)
-	count = 0
+	# max_docs = int(50 / num_latlongs ** 2)
 
 	slack_notification("Cairo Crawler: Start Crawling Trips")
 
 	for document in cursor:
-		if count == max_docs:
-			request_API(latlongs_o, latlongs_d)
-			count = 0
-			latlongs_o = ''
-			latlongs_d = ''
-			time.sleep(1)
-
 		for latlong in document['latlongs_o']:
 			if latlongs_o == '' :
 				latlongs_o += str(latlong[0]) + ',' + str(latlong[1])
@@ -114,6 +106,9 @@ def crawl_trip(num_latlongs):
 			else:
 				latlongs_d += '|' + str(latlong[0]) + ',' + str(latlong[1])
 
-		count += 1
+		request_API(latlongs_o, latlongs_d)
+		latlongs_o = ''
+		latlongs_d = ''
+		time.sleep(1)
 
 	slack_notification("Cairo Crawler: Crawling Successful")
