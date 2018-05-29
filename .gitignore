@@ -2,3 +2,5 @@ __pycache__
 *.py[cod]
 *.json
 /data
+.DS_Store
+.ftpconfig
