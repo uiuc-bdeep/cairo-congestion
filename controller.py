@@ -81,7 +81,6 @@ def main():
     db.crawled_trips.drop()
 
     num_latlongs = load_latlongs()
-
     crawl_trip(num_latlongs)
     make_csv()
 

@@ -43,11 +43,11 @@ def make_csv():
     slack_notification("Cairo Crawler: Writing CSV file.")
 
     with open(csv_path, 'w') as csv_file:
-        fieldnames = ['distance', 'duration', 'duration_in_traffic']
+        fieldnames = ['origin', 'destination', 'mode', 'time', 'distance', 'duration', 'duration_in_traffic']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         for dict in cursor:
-            writer.writerow({'distance': dict['distance'], 'duration': dict['duration'], 'duration_in_traffic': dict['duration_in_traffic']})
+            writer.writerow({'origin': dict['origin'], 'destination': dict['destination'], 'mode': dict['mode'], 'time': dict['time'], 'distance': dict['distance'], 'duration': dict['duration'], 'duration_in_traffic': dict['duration_in_traffic']})
 
     csv_file.close()
 
