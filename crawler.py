@@ -94,12 +94,13 @@ def crawl_trip():
 	trip_list = []
 
 	modes = ['driving', 'walking']
-	current_time = int(time.time())
+	cairo_timezone = datetime.utcnow() + timedelta(hours=2)
+	current_time = int(cairo_timezone.timestamp())
 	time_variation_in_seconds = 60 * 60 * 2
 	time_interval_in_seconds = 10 * 60
 	time_two_hours = range(current_time, current_time + time_variation_in_seconds, time_interval_in_seconds)
 
-	# origin = '0.016877118743416,31.369837007062927'
+	# origin = '30.016877118743416,31.369837007062927'
 	# destination = '30.011917246091414,31.36908297493297'
 
 	for document in cursor:
@@ -107,13 +108,11 @@ def crawl_trip():
 		destination = document['destination']
 
 		for departure_time in time_two_hours:
-			server_date = time.strftime('%Y-%m-%d', time.localtime(departure_time))
-			server_time = time.strftime('%H:%M:%S', time.localtime(departure_time))
-			cairo_datetime = datetime.utcnow() + timedelta(hours=2)
+			cairo_datetime = datetime.fromtimestamp(departure_time)
 			cairo_date = cairo_datetime.strftime("%Y-%m-%d")
 			cairo_time = cairo_datetime.strftime("%H:%M:%S")
 
-			trip = {'origin': origin, 'destination': destination, 'server_date': server_date, 'server_time': server_time, 'cairo_date': cairo_date, 'cairo_time': cairo_time, 'distance(driving)': 0, 'duration(driving)': 0, 'distance(walking)': 0, 'duration(walking)': 0}
+			trip = {'origin': origin, 'destination': destination, 'cairo_date': cairo_date, 'cairo_time': cairo_time, 'distance(driving)': 0, 'duration(driving)': 0, 'distance(walking)': 0, 'duration(walking)': 0}
 
 			for mode in modes:
 				distance, duration = request_API(origin, destination, mode, departure_time)

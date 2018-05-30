@@ -5,7 +5,6 @@
 	Description:
 		This script pulls trips from the database, and output to a CSV file.
 '''
-# Import libraries.
 import os
 import csv
 import json
@@ -47,11 +46,11 @@ def make_csv():
     slack_notification("Cairo Crawler: Writing CSV file.")
 
     with open(csv_path, 'w') as csv_file:
-        fieldnames = ['origin', 'destination', 'server_date', 'server_time', 'cairo_date', 'cairo_time', 'distance(driving)', 'duration(driving)', 'distance(walking)', 'duration(walking)']
+        fieldnames = ['origin', 'destination', 'cairo_date', 'cairo_time', 'distance(driving)', 'duration(driving)', 'distance(walking)', 'duration(walking)']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         for dict in cursor:
-            writer.writerow({'origin': dict['origin'], 'destination': dict['destination'], 'server_date': dict['server_date'], 'server_time': dict['server_time'], 'cairo_date': dict['cairo_date'], 'cairo_time': dict['cairo_time'], 'distance(driving)': dict['distance(driving)'], 'duration(driving)': dict['duration(driving)'], 'distance(walking)': dict['distance(walking)'], 'duration(walking)': dict['duration(walking)']})
+            writer.writerow({'origin': dict['origin'], 'destination': dict['destination'], 'cairo_date': dict['cairo_date'], 'cairo_time': dict['cairo_time'], 'distance(driving)': dict['distance(driving)'], 'duration(driving)': dict['duration(driving)'], 'distance(walking)': dict['distance(walking)'], 'duration(walking)': dict['duration(walking)']})
 
     csv_file.close()
 
