@@ -21,7 +21,6 @@ pkgTest <- function(x)
 # load required packages
 
 packages <- c("dplyr",
-              "rgdal",
               "ggmap",
               "ggplot2")
 
