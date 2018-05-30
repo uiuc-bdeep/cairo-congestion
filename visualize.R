@@ -4,7 +4,7 @@ rm(list = ls())
 
 # set working directory
 
-setwd("/home/bdeep/share/projects/Cairo")
+setwd("/home/bdeep/share/projects/Cairo/test/")
 
 # function for loading packages
 
@@ -28,11 +28,7 @@ lapply(packages, pkgTest)
 
 # input
 
-test.path <- "test/cairo-congestion.csv"
-
-# output
-
-out.path <- "test/"
+test.path <- "cairo-congestion.csv"
 
 # read data 
 
@@ -49,6 +45,8 @@ Cairo_map <- get_map(location = Cairo, maptype = "satellite", source = "google",
 
 ggmap(Cairo_map) + geom_point(data = coords, aes(y = V1, x = V2))
 
+ggsave("origins.png", height = 5, width = 8, dpi = 300)
+
 # plot distribution of travel times
 
 # convert to minutes
@@ -61,6 +59,8 @@ ggplot(test) +
   xlab("Duration (Minutes)") +
   ylab("Number of Trips") +
   theme_bw() 
+
+ggsave("distribution.png", height = 5, width = 8, dpi = 300)
 
 # plot distribution of travel times over the course of the day
 
@@ -86,6 +86,7 @@ ggplot(test1) +
   ggtitle("Crawler Test Run", subtitle = "100 trips crawled 12 times") + 
   theme_bw()
   
+ggsave("time-of-day.png", height = 5, width = 8, dpi = 300)
 
 # regress travel times on time of day with trip FEs
 
