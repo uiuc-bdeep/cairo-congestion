@@ -34,9 +34,10 @@ def slack_notification(slack_msg):
         logger.info(e)
 
 def make_csv():
-	"""
-		Pulls trips from the database, and output to a CSV file.
-	"""
+    """
+    	Pulls trips from the database, and output to a CSV file.
+    """
+
     csv_path = "/data/cairo-congestion.csv"
 
     client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'],27017)
@@ -46,11 +47,11 @@ def make_csv():
     slack_notification("Cairo Crawler: Writing CSV file.")
 
     with open(csv_path, 'w') as csv_file:
-        fieldnames = ['origin', 'destination', 'time', 'distance(driving)', 'duration(driving)', 'distance(walking)', 'duration(walking)']
+        fieldnames = ['origin', 'destination', 'server_date', 'server_time', 'cairo_date', 'cairo_time', 'distance(driving)', 'duration(driving)', 'distance(walking)', 'duration(walking)']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         for dict in cursor:
-            writer.writerow({'origin': dict['origin'], 'destination': dict['destination'], 'time': dict['time'], 'distance(driving)': dict['distance(driving)'], 'duration(driving)': dict['duration(driving)'], 'distance(walking)': dict['distance(walking)'], 'duration(walking)': dict['duration(walking)']})
+            writer.writerow({'origin': dict['origin'], 'destination': dict['destination'], 'server_date': dict['server_date'], 'server_time': dict['server_time'], 'cairo_date': dict['cairo_date'], 'cairo_time': dict['cairo_time'], 'distance(driving)': dict['distance(driving)'], 'duration(driving)': dict['duration(driving)'], 'distance(walking)': dict['distance(walking)'], 'duration(walking)': dict['duration(walking)']})
 
     csv_file.close()
 

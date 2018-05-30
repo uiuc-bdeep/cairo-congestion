@@ -12,6 +12,7 @@ import json
 import requests
 import logging
 import time
+from datetime import datetime, timedelta
 from pprint import pprint
 from pymongo import MongoClient
 from bson.objectid import ObjectId
@@ -106,8 +107,13 @@ def crawl_trip():
 		destination = document['destination']
 
 		for departure_time in time_two_hours:
-			formmated_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(departure_time))
-			trip = {'origin': origin, 'destination': destination, 'time': formmated_time, 'distance(driving)': 0, 'duration(driving)': 0, 'distance(walking)': 0, 'duration(walking)': 0}
+			server_date = time.strftime('%Y-%m-%d', time.localtime(departure_time))
+			server_time = time.strftime('%H:%M:%S', time.localtime(departure_time))
+			cairo_datetime = datetime.utcnow() + timedelta(hours=2)
+			cairo_date = cairo_datetime.strftime("%Y-%m-%d")
+			cairo_time = cairo_datetime.strftime("%H:%M:%S")
+
+			trip = {'origin': origin, 'destination': destination, 'server_date': server_date, 'server_time': server_time, 'cairo_date': cairo_date, 'cairo_time': cairo_time, 'distance(driving)': 0, 'duration(driving)': 0, 'distance(walking)': 0, 'duration(walking)': 0}
 
 			for mode in modes:
 				distance, duration = request_API(origin, destination, mode, departure_time)
