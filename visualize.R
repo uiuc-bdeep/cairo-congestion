@@ -62,3 +62,32 @@ ggplot(test) +
   xlab("Duration (Minutes)") +
   ylab("Number of Trips") +
   theme_bw() 
+
+# plot distribution of travel times over the course of the day
+
+
+# group data according to time of departure
+
+test <- group_by(test, cairo_time)
+
+test1 <- summarise(test, mean = mean(duration.driving.), sd = sd(duration.driving))
+
+# create confidence intervals 
+
+test1$ci1 <- test1$mean + 1.96 * test1$sd
+test1$ci2 <- test1$mean - 1.96 * test1$sd
+
+# plot
+
+ggplot(test1) + 
+  geom_point(aes(y = mean, x = cairo_time)) +
+  geom_line(aex(y = mean, x = cairo_time)) +
+  geom_errorbar(aes(ymin = ci2, ymax = ci1), width = 0.1) + 
+  xlab("Time of Day") + ylab("Average Duration") +
+  ggtitle("Crawler Test Run", subtitle = "100 trips crawled 12 times") + 
+  theme_bw()
+  
+
+# regress travel times on time of day with trip FEs
+
+
