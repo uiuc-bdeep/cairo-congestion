@@ -124,7 +124,7 @@ def crawl_trip():
 				trip['duration({})'.format(mode)] = duration
 				trip['distance({})'.format(mode)] = distance
 
-		trip_list.append(trip)
+			trip_list.append(trip)
 
 	db.crawled_trips.insert_many(trip_list)
 
