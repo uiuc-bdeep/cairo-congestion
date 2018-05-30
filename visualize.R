@@ -39,6 +39,10 @@ out.path <- "test/"
 
 test <- read.csv(test.path, header = TRUE)
 
+coords <- as.data.frame(str_split_fixed(test$origin, ",", 2))
+coords$V1 <- as.numeric(as.character(coords$V1))
+coords$V2 <- as.numeric(as.character(coords$V2))
+
 # plot map of origin points
 
 Cairo <- c(long = 31.35, lat = 30.044444)
@@ -47,6 +51,10 @@ Cairo_map <- get_map(location = Cairo, maptype = "satellite", source = "google",
 ggmap(Cairo_map) + geom_point(data = coords, aes(y = V1, x = V2))
 
 # plot distribution of travel times
+
+# convert to minutes
+
+test$duration.driving. <- test$duration.driving. / 60
 
 ggplot(test) +
   geom_histogram(aes(duration.driving.), binwidth = 1) +
