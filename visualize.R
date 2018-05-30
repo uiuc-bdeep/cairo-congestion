@@ -21,6 +21,8 @@ pkgTest <- function(x)
 # load required packages
 
 packages <- c("dplyr",
+              "lubridate",
+              "stringr",
               "ggmap",
               "ggplot2")
 
@@ -76,15 +78,19 @@ test1 <- summarise(test, mean = mean(duration.driving.), sd = sd(duration.drivin
 test1$ci1 <- test1$mean + 1.96 * test1$sd
 test1$ci2 <- test1$mean - 1.96 * test1$sd
 
+# format time of day variable 
+
+test1$minute <- minute(test1$cairo_time)
+
 # plot
 
-ggplot(test1) + 
-  geom_point(aes(y = mean, x = cairo_time)) +
-  geom_line(aex(y = mean, x = cairo_time)) +
-  geom_errorbar(aes(ymin = ci2, ymax = ci1), width = 0.1) + 
-  xlab("Time of Day") + ylab("Average Duration") +
-  ggtitle("Crawler Test Run", subtitle = "100 trips crawled 12 times") + 
-  theme_bw()
+ggplot() + 
+    geom_line(mapping = aes(x = minute, y = mean), data = test1) +
+    geom_line(mapping = aes(x = minute, y = ci1), data = test1) +
+    geom_line(mapping = aes(x = minute, y = ci2), data = test1) +
+    xlab("Time of Day") + ylab("Average Duration /n (Minutes)") +
+    ggtitle("Crawler Test Run", subtitle = "100 trips crawled 12 times") + 
+    theme_bw()
   
 ggsave("time-of-day.png", height = 5, width = 8, dpi = 300)
 
