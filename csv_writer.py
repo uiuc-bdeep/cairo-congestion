@@ -46,11 +46,11 @@ def make_csv():
     slack_notification("Cairo Crawler: Writing CSV file.")
 
     with open(csv_path, 'w') as csv_file:
-        fieldnames = ['origin', 'destination', 'cairo_date', 'cairo_time', 'distance(driving)', 'duration(driving)', 'distance(walking)', 'duration(walking)']
+        fieldnames = ['origin_lat', 'origin_long', 'destination_lat', 'destination_long', 'cairo_date', 'cairo_time', 'distance(driving)', 'duration(driving)', 'distance(walking)', 'duration(walking)']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         for dict in cursor:
-            writer.writerow({'origin': dict['origin'], 'destination': dict['destination'], 'cairo_date': dict['cairo_date'], 'cairo_time': dict['cairo_time'], 'distance(driving)': dict['distance(driving)'], 'duration(driving)': dict['duration(driving)'], 'distance(walking)': dict['distance(walking)'], 'duration(walking)': dict['duration(walking)']})
+            writer.writerow({'origin_lat': dict['origin_lat'], 'origin_long': dict['origin_long'], 'destination_lat': dict['destination_lat'], 'destination_long': dict['destination_long'], 'cairo_date': dict['cairo_date'], 'cairo_time': dict['cairo_time'], 'distance(driving)': dict['distance(driving)'], 'duration(driving)': dict['duration(driving)'], 'distance(walking)': dict['distance(walking)'], 'duration(walking)': dict['duration(walking)']})
 
     csv_file.close()
 

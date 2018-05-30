@@ -104,22 +104,27 @@ def crawl_trip():
 	# destination = '30.011917246091414,31.36908297493297'
 
 	for document in cursor:
-		origin = document['origin']
-		destination = document['destination']
+		origin_lat = document['origin'][0]
+		origin_long = document['origin'][1]
+		destination_lat = document['destination'][0]
+		destination_long = document['destination'][1]
+
+		origin = str(origin_lat) + ',' + str(origin_long)
+		destination = str(destination_lat) + ',' + str(destination_long)
 
 		for departure_time in time_two_hours:
 			cairo_datetime = datetime.fromtimestamp(departure_time)
 			cairo_date = cairo_datetime.strftime("%Y-%m-%d")
 			cairo_time = cairo_datetime.strftime("%H:%M:%S")
 
-			trip = {'origin': origin, 'destination': destination, 'cairo_date': cairo_date, 'cairo_time': cairo_time, 'distance(driving)': 0, 'duration(driving)': 0, 'distance(walking)': 0, 'duration(walking)': 0}
+			trip = {'origin_lat': origin_lat, 'origin_long': origin_long, 'destination_lat': destination_lat, 'destination_long': destination_long, 'cairo_date': cairo_date, 'cairo_time': cairo_time, 'distance(driving)': 0, 'duration(driving)': 0, 'distance(walking)': 0, 'duration(walking)': 0}
 
 			for mode in modes:
 				distance, duration = request_API(origin, destination, mode, departure_time)
 				trip['duration({})'.format(mode)] = duration
 				trip['distance({})'.format(mode)] = distance
 
-			trip_list.append(trip)
+		trip_list.append(trip)
 
 	db.crawled_trips.insert_many(trip_list)
 
