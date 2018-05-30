@@ -50,28 +50,22 @@ def slack_notification(slack_msg):
         logger.info("Cairo Crawler: Error while sending controller Slack notification")
         logger.info(e)
 
-def load_latlongs():
-    """Generates and stores the lat/longs in a database
-    Calls the generate_latlongs method from latlong_generator.py and stores
-    the generated data in a MongoDB database.
-    """
-
-    client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'], 27017)
-    db = client.cairo_trial
-    record = db.latlongs
-
-    slack_msg = "Cairo Crawler: Generating Random Latitude/Longitudes"
-    slack_notification(slack_msg)
-
-    latlong_list, num_latlongs = generate_latlongs()
-
-    record.insert_many(latlong_list)
-
-    slack_msg = "Cairo Crawler: Inserted Random Latitude/Longitudes into MongoDB"
-    slack_notification(slack_msg)
-    return num_latlongs
-
 def main():
+
+    def load_latlongs():
+        """Generates and stores the lat/longs in a database
+        Calls the generate_latlongs method from latlong_generator.py and stores
+        the generated data in a MongoDB database.
+        """
+        slack_msg = "Cairo Crawler: Generating Random Latitude/Longitudes"
+        slack_notification(slack_msg)
+
+        latlongs = generate_latlongs()
+        db.latlongs.insert_many(latlongs)
+
+        slack_msg = "Cairo Crawler: Inserted Random Latitude/Longitudes into MongoDB"
+        slack_notification(slack_msg)
+
     slack_msg = "Cairo Crawler: Initiating Controller"
     slack_notification(slack_msg)
 
@@ -80,8 +74,8 @@ def main():
     db.latlongs.drop()
     db.crawled_trips.drop()
 
-    num_latlongs = load_latlongs()
-    crawl_trip(num_latlongs)
+    load_latlongs()
+    crawl_trip()
     make_csv()
 
 

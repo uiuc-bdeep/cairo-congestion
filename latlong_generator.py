@@ -116,10 +116,15 @@ def generate_latlongs(amt=10):
         for _ in range(amt):
             latitude = random.uniform(*lats)
             longitude = random.uniform(*longs)
-            latlong_list.append([latitude, longitude])
+            latlong_list.append(str(latitude)+','+str(longitude))
 
-    latlong_list = random.sample(latlong_list, 100)
-    origin = latlong_list[:50]
-    destination = latlong_list[50:]
+    num_trips = 100
+    latlong_list = random.sample(latlong_list, num_trips)
+    origin = latlong_list[:int(num_trips/2)]
+    destination = latlong_list[int(num_trips/2):]
 
-    return origin, destination
+    latlong_list = []
+    for idx, _ in enumerate(range(int(num_trips/2))):
+        latlong_list.append({'origin': origin[idx], 'destination': destination[idx]})
+
+    return latlong_list
