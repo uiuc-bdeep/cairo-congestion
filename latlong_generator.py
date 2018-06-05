@@ -28,36 +28,43 @@ import random
 import logging
 import time
 import csv
-#import matplotlib.pyplot as plt
+import os
+import webbrowser
+from gmplot import gmplot
 #import pymongo
-#from geopy.distance import geodesic
+from geopy.distance import geodesic
 
 # Lat/Longs of each four corners of interested square area of Cairo, Egypt
-TOP_LEFT = (30.1492, 31.246)
-TOP_RIGHT = (30.1492, 31.446)
-BOT_LEFT = (29.975, 31.246)
-BOT_RIGHT = (29.975, 31.446)
-CENTER = (30.0621, 31.346)
+TOP_LEFT = (30.352010, 30.808111)
+TOP_RIGHT = (30.352010, 31.843003)
+BOT_LEFT = (29.806578, 30.808111)
+BOT_RIGHT = (29.806758, 31.843003)
 
-#print("Top Left Lat/Long: {0}".format(TOP_LEFT))
-#print("Top Right Lat/Long: {0}".format(TOP_RIGHT))
-#print("Bottom Left Lat/Long: {0}".format(BOT_LEFT))
-#print("Bottom Right Lat/Long: {0}".format(BOT_RIGHT))
-#print("TOP DISTANCE: {0}".format(geodesic(TOP_LEFT, TOP_RIGHT).miles))
-#print("BOT DISTANCE: {0}".format(geodesic(BOT_LEFT, BOT_RIGHT).miles))
-#print("LEFT DISTANCE: {0}".format(geodesic(TOP_LEFT, BOT_LEFT).miles))
-#print("RIGHT DISTANCE: {0}".format(geodesic(TOP_RIGHT, BOT_RIGHT).miles))
+print("Top Left Lat/Long: {0}".format(TOP_LEFT))
+print("Top Right Lat/Long: {0}".format(TOP_RIGHT))
+print("Bottom Left Lat/Long: {0}".format(BOT_LEFT))
+print("Bottom Right Lat/Long: {0}".format(BOT_RIGHT))
+print("TOP DISTANCE: {0}".format(geodesic(TOP_LEFT, TOP_RIGHT)))
+print("BOT DISTANCE: {0}".format(geodesic(BOT_LEFT, BOT_RIGHT)))
+print("LEFT DISTANCE: {0}".format(geodesic(TOP_LEFT, BOT_LEFT)))
+print("RIGHT DISTANCE: {0}".format(geodesic(TOP_RIGHT, BOT_RIGHT)))
 
-def generate_cells(amt=20, t_l=TOP_LEFT, t_r=TOP_RIGHT, b_l=BOT_LEFT, b_r=BOT_RIGHT):
+print("CELL HEIGHT/WIDTH: {0}\n".format(geodesic((30.042846, 31.193597), (30.042846, 31.218897))))
+
+def generate_cells(x_amt=40, y_amt=24, t_l=TOP_LEFT, t_r=TOP_RIGHT, b_l=BOT_LEFT, b_r=BOT_RIGHT):
     """Subdivides interested square area into specified x by x
+
     Uses the given lat/long pairs of each four corners of the square area and
     the amount x given by the parameter to divide said area into x by x grid.
+
     Args:
-        amt: The amount of cells in the columns AND rows.
+        x_amt: The amount of cells in the rows.
+        y_amt: The amount of cells in the columns.
         t_l: The lat/long of the top-left corner
         t_r: The lat/long of the top-right corner
         b_l: The lat/long of the bottom-left corner
         b_r: The lat/long of the bottom-right corner
+
     Returns:
         cells: A dictionary in which keys are the (x,y) coordinate of the cell
                and the values are the lat/longs of the bottom-left and top-
@@ -65,15 +72,16 @@ def generate_cells(amt=20, t_l=TOP_LEFT, t_r=TOP_RIGHT, b_l=BOT_LEFT, b_r=BOT_RI
     """
 
     # Set bottom-left as the base to which to add increments
-    lats = [b_l[0]]*(amt+1)
-    longs = [b_l[1]]*(amt+1)
+    lats = [b_l[0]]*(y_amt+1)
+    longs = [b_l[1]]*(x_amt+1)
 
+    # Calculate difference in lat/longs to figure out increments
     lat_diff = t_l[0]-b_l[0]
     long_diff = b_r[1]-b_l[1]
 
     # Generate lat/long points by adding small, consistent increments
-    lats = [(l + lat_diff*x/amt) for x, l in enumerate(lats)]
-    longs = [(l + long_diff*x/amt) for x, l in enumerate(longs)]
+    lats = [(l + lat_diff*z/y_amt) for z, l in enumerate(lats)]
+    longs = [(l + long_diff*z/x_amt) for z, l in enumerate(longs)]
 
     cells = []
 
@@ -111,7 +119,17 @@ def generate_cell_coordinates(cells):
         bottom_right_lat = cell['latlongs'][1][0]
         bottom_right_long = cell['latlongs'][0][1]
 
-        coordinate = {'x': x, 'y': y, 'bottom_left_lat': bottom_left_lat, 'bottom_left_long': bottom_left_long, 'top_left_lat': top_left_lat, 'top_left_long': top_left_long, 'top_right_lat': top_right_lat, 'top_right_long': top_right_long, 'bottom_right_lat': bottom_right_lat, 'bottom_right_long': bottom_right_long}
+        coordinate = {'x': x,
+                      'y': y,
+                      'bottom_left_lat': bottom_left_lat,
+                      'bottom_left_long': bottom_left_long,
+                      'top_left_lat': top_left_lat,
+                      'top_left_long': top_left_long,
+                      'top_right_lat': top_right_lat,
+                      'top_right_long': top_right_long,
+                      'bottom_right_lat': bottom_right_lat,
+                      'bottom_right_long': bottom_right_long
+                     }
         coordinates.append(coordinate)
 
     csv_path = "/data/cell_coordinate.csv"
@@ -126,11 +144,14 @@ def generate_cell_coordinates(cells):
 
 def generate_latlongs(amt=10):
     """Generates specified amount of random lat/longs from every cells
+
     Randomly samples a specified amount of lat/long pairs from every single
     cells and returns each set of lat/longs with its corresponding coordinates
     in dictionary form.
+
     Args:
         amt: The amount of samples to take in each cell.
+
     Returns:
         latlong_list: A list of dictionaries, each of which contains key-value
                       pairs of coordinates and a set of randomly sampled
@@ -139,14 +160,17 @@ def generate_latlongs(amt=10):
     random.seed(0) # Seeded for testing purposes
     cells = generate_cells()
 
-    generate_cell_coordinates(cells)
+    #generate_cell_coordinates(cells)
 
     latlong_list = []
+
     # Generate dictionaries of every cell's respective coordinates and set of
     # lat/long pairs
     for cell in cells:
         coord = cell["coord"]
         latlong = cell["latlongs"]
+        latlong_dict = {}
+        latlongs = []
         lats = [latlong[0][0], latlong[1][0]]
         longs = [latlong[0][1], latlong[1][1]]
 
@@ -154,17 +178,72 @@ def generate_latlongs(amt=10):
         for _ in range(amt):
             latitude = random.uniform(*lats)
             longitude = random.uniform(*longs)
-            latlong_list.append([latitude, longitude])
+            latlongs.append((latitude, longitude))
+        latlong_dict["coord"] = coord
+        latlong_dict["latlongs"] = latlongs
+        latlong_list.append(latlong_dict)
 
-    num_trips = 100
-    latlong_list = random.sample(latlong_list, num_trips * 2)
-    origin = latlong_list[:num_trips]
-    destination = latlong_list[num_trips:]
+    #num_trips = 100
+    #latlong_list = random.sample(latlong_list, num_trips * 2)
+    #origin = latlong_list[:num_trips]
+    #destination = latlong_list[num_trips:]
 
-    latlong_list = []
-    for idx, _ in enumerate(range(num_trips)):
-        latlong_list.append({'origin': origin[idx], 'destination': destination[idx]})
+    #latlong_list = []
+    #for idx, _ in enumerate(range(num_trips)):
+    #    latlong_list.append({'origin': origin[idx], 'destination': destination[idx]})
 
     return latlong_list
 
-generate_latlongs()
+def visualize():
+    gmap = gmplot.GoogleMapPlotter(30.079384, 31.325557, 11)
+
+    main_grid_lats, main_grid_longs = zip(*[
+        (29.806578, 30.808111),
+        (29.806578, 31.843003),
+        (30.352010, 31.843003),
+        (30.352010, 30.808111),
+        (29.806578, 30.808111)
+        ])
+    gmap.plot(main_grid_lats, main_grid_longs, 'red', edge_width=2)
+
+    gmap.draw("cairo_map0.html")
+
+    lats = [BOT_LEFT[0]]*(25)
+    longs = [BOT_LEFT[1]]*(41)
+
+    lat_diff = TOP_LEFT[0] - BOT_LEFT[0]
+    long_diff = BOT_RIGHT[1] - BOT_LEFT[1]
+
+    lats = [(l + lat_diff*z/24) for z, l in enumerate(lats)]
+    longs = [(l + long_diff*z/40) for z, l in enumerate(longs)]
+
+    for lon in longs:
+        gmap.plot((29.806578, 30.352010), (lon, lon), 'red', edge_width=1)
+    for lat in lats:
+        gmap.plot((lat, lat), (30.808111, 31.843003), 'red', edge_width=1)
+
+    gmap.draw("cairo_map1.html")
+
+    latlong_list = generate_latlongs()
+
+    random_lats, random_longs = zip(*[
+        *latlong_list
+        ])
+
+    for lon in longs:
+        gmap.plot((29.806578, 30.352010), (lon, lon), 'red', edge_width=1)
+    for lat in lats:
+        gmap.plot((lat, lat), (30.808111, 31.843003), 'red', edge_width=1)
+
+    gmap.scatter(random_lats, random_longs, "#3B0B39", size=40, marker=False)
+
+    gmap.draw("cairo_map2.html")
+
+#latlong_list = generate_latlongs()
+#
+#for latlong_d in latlong_list:
+#    values = list(latlong_d.values())
+#    print("Coordinate: {0}".format(values[0]))
+#    for latlong in values[1]:
+#        print(latlong)
+#    print('\n')
