@@ -13,6 +13,7 @@ import json
 import requests
 from datetime import datetime
 import time
+import schedule
 from latlong_generator import generate_latlongs
 from crawler import crawl_trip
 from csv_writer import make_csv
@@ -94,7 +95,23 @@ def main():
              {"coord": [20,10]},
              {"coord": [20,11]}]
 
-    crawl_trip(cells)
+    start_day = "Tuesday"
+    start_hour = "23"
+    start_min = "00"
+    end_day = "Wednesday"
+    end_hour = "04"
+    end_min = "00"
+
+    while True:
+        current_time = datetime.now()
+        if start_day == now.strftime("%A") and start_hour == str(now.hour) and start_min == str(now.minute):
+            schedule.every(20).minutes.do(crawl_trips, cells).tag("crawler")
+            schedule.run_pending()
+        if end_day == now.strftime("%A") and end_hour == str(now.hour) and end_min == str(now.minute):
+            schedule.clear("crawler")
+            break
+        time.sleep(1)
+
     make_csv()
 
 
