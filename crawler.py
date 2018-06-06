@@ -89,12 +89,12 @@ def request_API(origin, destination, mode):
 
     return distance, duration
 
-def crawl_trip():
+def crawl_trip(cells):
     client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'],27017)
     db = client.cairo_trial
 
     latlongs = db.latlongs
-    cursor = latlongs.find({"coord": [17,9]})
+    cursor = latlongs.find({"$or": cells)
 
     slack_notification("Cairo Crawler: Start Crawling Trips.")
 
