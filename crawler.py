@@ -94,7 +94,7 @@ def crawl_trip(cells):
     db = client.cairo_trial
 
     latlongs = db.latlongs
-    cursor = latlongs.find({"$or": cells)
+    cursor = latlongs.find({"$or": cells})
 
     slack_notification("Cairo Crawler: Start Crawling Trips.")
 
@@ -125,8 +125,8 @@ def crawl_trip(cells):
                     }
             for mode in modes:
                 distance, duration = request_API(origin, destination, mode)
-                mode_distance = mode + "_" + distance
-                mode_duration = mode + "_" + duration
+                mode_distance = mode + "_distance"
+                mode_duration = mode + "_duration"
                 trip[mode_distance] = distance
                 trip[mode_duration] = duration
 

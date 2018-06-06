@@ -75,23 +75,22 @@ def main():
     db.crawled_trips.drop()
 
     load_latlongs()
-    cells = [{"coord": [17,8],
-              "coord": [17,9],
-              "coord": [17,10],
-              "coord": [17,11],
-              "coord": [18,8],
-              "coord": [18,9],
-              "coord": [18,10],
-              "coord": [18,11],
-              "coord": [19,8],
-              "coord": [19,9],
-              "coord": [19,10],
-              "coord": [19,11],
-              "coord": [20,8],
-              "coord": [20,9],
-              "coord": [20,10],
-              "coord": [20,11],
-              }]
+    cells = [{"coord": [17,8]},
+             {"coord": [17,9]},
+             {"coord": [17,10]},
+             {"coord": [17,11]},
+             {"coord": [18,8]},
+             {"coord": [18,9]},
+             {"coord": [18,10]},
+             {"coord": [18,11]},
+             {"coord": [19,8]},
+             {"coord": [19,9]},
+             {"coord": [19,10]},
+             {"coord": [19,11]},
+             {"coord": [20,8]},
+             {"coord": [20,9]},
+             {"coord": [20,10]},
+             {"coord": [20,11]}]
     crawl_trip(cells)
     make_csv()
 

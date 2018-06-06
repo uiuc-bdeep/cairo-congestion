@@ -49,11 +49,11 @@ def make_csv():
 
     with open(csv_path, 'w') as csv_file:
         fieldnames = ["coord", "cairo_time", "query_time", "origin_latlong",
-                       "destination_long", "driving_distance", "driving_duration",
+                       "destination_latlong", "driving_distance", "driving_duration",
                        "walking_distance", "walking_duration"]
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
-        for dict in cursor:
+        for doc in cursor:
             writer.writerow({"coord": doc["coord"],
                              "cairo_time": doc["cairo_time"],
                              "query_time": doc["query_time"],
