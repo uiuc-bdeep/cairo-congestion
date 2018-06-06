@@ -11,6 +11,8 @@ import os
 import logging
 import json
 import requests
+from datetime import datetime
+import time
 from latlong_generator import generate_latlongs
 from crawler import crawl_trip
 from csv_writer import make_csv
@@ -91,6 +93,7 @@ def main():
              {"coord": [20,9]},
              {"coord": [20,10]},
              {"coord": [20,11]}]
+
     crawl_trip(cells)
     make_csv()
 

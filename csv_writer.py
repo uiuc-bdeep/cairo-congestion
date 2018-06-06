@@ -48,17 +48,23 @@ def make_csv():
     slack_notification("Cairo Crawler: Writing CSV file.")
 
     with open(csv_path, 'w') as csv_file:
-        fieldnames = ["coord", "cairo_time", "query_time", "origin_latlong",
-                       "destination_latlong", "driving_distance", "driving_duration",
-                       "walking_distance", "walking_duration"]
+        fieldnames = ["coord_x", "coord_y", "cairo_date", "cairo_time", 
+                      "query_date", "query_time", "origin_lat", "origin_long", 
+                      "destination_lat", "destination_long", "driving_distance", 
+                      "driving_duration", "walking_distance", "walking_duration"]
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         for doc in cursor:
-            writer.writerow({"coord": doc["coord"],
+            writer.writerow({"coord_x": doc["coord_x"],
+                             "coord_y": doc["coord_y"],
+                             "cairo_date": doc["cairo_date"],
                              "cairo_time": doc["cairo_time"],
+                             "query_date": doc["query_date"],
                              "query_time": doc["query_time"],
-                             "origin_latlong": doc["origin_latlong"],
-                             "destination_latlong": doc["destination_latlong"],
+                             "origin_lat": doc["origin_lat"],
+                             "origin_long": doc["origin_long"],
+                             "destination_lat": doc["destination_lat"],
+                             "destination_long": doc["destination_long"],
                              "driving_distance": doc["driving_distance"],
                              "driving_duration": doc["driving_duration"],
                              "walking_distance": doc["walking_distance"],

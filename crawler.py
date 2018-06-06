@@ -102,9 +102,11 @@ def crawl_trip(cells):
 
     modes = ['driving', 'walking']
     cairo_datetime = datetime.utcnow() + timedelta(hours=2)
-    cairo_time = cairo_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    cairo_date = cairo_datetime.strftime("%Y-%m-%d")
+    cairo_time = cairo_datetime.strftime("%H:%M:%S")
     query_datetime = datetime.utcnow() + timedelta(hours=-5)
-    query_time = query_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    query_date = query_datetime.strftime("%Y-%m-%d")
+    query_time = query_datetime.strftime("%H:%M:%S")
 
     # origin = '30.016877118743416,31.369837007062927'
     # destination = '30.011917246091414,31.36908297493297'
@@ -117,11 +119,16 @@ def crawl_trip(cells):
         for orig_latlong, dest_latlong in zip(orig_latlongs, dest_latlongs):
             origin = str(orig_latlong[0]) + ',' + str(orig_latlong[1])
             destination = str(dest_latlong[0]) + ',' + str(dest_latlong[1])
-            trip = {"coord": coord,
+            trip = {"coord_x": coord[0],
+                    "coord_y": coord[1],
+                    "cairo_date": cairo_date,
                     "cairo_time": cairo_time,
+                    "query_date": query_date,
                     "query_time": query_time,
-                    "origin_latlong": orig_latlong,
-                    "destination_latlong": dest_latlong
+                    "origin_lat": orig_latlong[0],
+                    "origin_long": orig_latlong[1],
+                    "destination_lat": dest_latlong[0],
+                    "destination_long": dest_latlong[1]
                     }
             for mode in modes:
                 distance, duration = request_API(origin, destination, mode)
