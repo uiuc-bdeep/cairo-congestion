@@ -16,6 +16,9 @@ from crawler import crawl_trip
 from csv_writer import make_csv
 from pymongo import MongoClient
 
+client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'],27017)
+db = client.cairo_trial
+
 def logging_init():
     """Initiates the logger
     Initiates the logger, the logger handler (for file handling), and the
@@ -50,33 +53,30 @@ def slack_notification(slack_msg):
         logger.info("Cairo Crawler: Error while sending controller Slack notification")
         logger.info(e)
 
-def main():
-
-    def load_latlongs():
-        """Generates and stores the lat/longs in a database
-        Calls the generate_latlongs method from latlong_generator.py and stores
-        the generated data in a MongoDB database.
-        """
-        slack_msg = "Cairo Crawler: Generating Random Latitude/Longitudes"
-        slack_notification(slack_msg)
-
-        latlongs = generate_latlongs()
-        db.latlongs.insert_many(latlongs)
-
-        slack_msg = "Cairo Crawler: Inserted Random Latitude/Longitudes into MongoDB"
-        slack_notification(slack_msg)
-
-    slack_msg = "Cairo Crawler: Initiating Controller"
+def load_latlongs():
+    """Generates and stores the lat/longs in a database
+    Calls the generate_latlongs method from latlong_generator.py and stores
+    the generated data in a MongoDB database.
+    """
+    slack_msg = "Cairo Crawler: Generating Random Latitude/Longitudes"
     slack_notification(slack_msg)
 
-    client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'],27017)
-    db = client.cairo_trial
+    latlongs = generate_latlongs()
+    db.latlongs.insert_many(latlongs)
+
+    slack_msg = "Cairo Crawler: Inserted Random Latitude/Longitudes into MongoDB"
+    slack_notification(slack_msg)
+
+slack_msg = "Cairo Crawler: Initiating Controller"
+slack_notification(slack_msg)
+
+def main():
     db.latlongs.drop()
     db.crawled_trips.drop()
 
     load_latlongs()
     crawl_trip()
-    make_csv()
+    #make_csv()
 
 
 if __name__ == "__main__":

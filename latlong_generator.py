@@ -31,7 +31,6 @@ import csv
 import os
 import webbrowser
 from gmplot import gmplot
-#import pymongo
 from geopy.distance import geodesic
 
 # Lat/Longs of each four corners of interested square area of Cairo, Egypt
