@@ -41,9 +41,9 @@ def slack_notification(slack_msg):
 
 def request_API(origin, destination, mode):
     """
-
     Uses Google Distance Matrix AP
     matrix of origins and destinations.
+
     Args:
         origin: Coordinate of the origin
         destination: Coordinate of the destination
@@ -96,8 +96,6 @@ def crawl_trip():
     latlongs = db.latlongs
     cursor = latlongs.find({"coord": [17,9]})
 
-    print(cursor.count())
-
     slack_notification("Cairo Crawler: Start Crawling Trips.")
 
     trip_list = []
@@ -106,7 +104,7 @@ def crawl_trip():
     cairo_datetime = datetime.utcnow() + timedelta(hours=2)
     cairo_time = cairo_datetime.strftime("%Y-%m-%d %H:%M:%S")
     query_datetime = datetime.utcnow() + timedelta(hours=-5)
-    query_time = query_datetime.strftime("%Y-%m-%d %H:%M:S")
+    query_time = query_datetime.strftime("%Y-%m-%d %H:%M:%S")
 
     # origin = '30.016877118743416,31.369837007062927'
     # destination = '30.011917246091414,31.36908297493297'
@@ -127,7 +125,10 @@ def crawl_trip():
                     }
             for mode in modes:
                 distance, duration = request_API(origin, destination, mode)
-                trip[mode] = {"distance": distance, "duration": duration}
+                mode_distance = mode + "_" + distance
+                mode_duration = mode + "_" + duration
+                trip[mode_distance] = distance
+                trip[mode_duration] = duration
 
             trip_list.append(trip)
     db.crawled_trips.insert_many(trip_list)

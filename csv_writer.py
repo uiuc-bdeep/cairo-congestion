@@ -1,9 +1,9 @@
 '''
-	File Name: csv_writer.py
-	Author: Zehao Chen (zehaoc2@illinois.edu)
-	Maintainer: Zehao Chen (zehaoc2@illinois.edu)
-	Description:
-		This script pulls trips from the database, and output to a CSV file.
+        File Name: csv_writer.py
+        Author: Zehao Chen (zehaoc2@illinois.edu)
+        Maintainer: Zehao Chen (zehaoc2@illinois.edu)
+        Description:
+            This script pulls trips from the database, and output to a CSV file.
 '''
 import os
 import csv
@@ -18,6 +18,7 @@ from bson.json_util import dumps
 def slack_notification(slack_msg):
     """
         Send slack notification with custom messages for different purposes
+
         Args:
             slack_msg: The custom message being sent.
     """
@@ -34,24 +35,35 @@ def slack_notification(slack_msg):
 
 def make_csv():
     """
-    	Pulls trips from the database, and output to a CSV file.
+        Pulls trips from the database, and output to a CSV file.
     """
 
     csv_path = "/data/cairo-congestion.csv"
 
     client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'],27017)
     db = client.cairo_trial
-    cursor = list(db.crawled_trips.find({}))
+    crawled_trips = db.crawled_trips
+    cursor = list(crawled_trips.find({}))
 
     slack_notification("Cairo Crawler: Writing CSV file.")
 
     with open(csv_path, 'w') as csv_file:
-        fieldnames = ['origin_lat', 'origin_long', 'destination_lat', 'destination_long', 'cairo_date', 'cairo_time', 'distance(driving)', 'duration(driving)', 'distance(walking)', 'duration(walking)']
+        fieldnames = ["coord", "cairo_time", "query_time", "origin_latlong",
+                       "destination_long", "driving_distance", "driving_duration",
+                       "walking_distance", "walking_duration"]
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         for dict in cursor:
-            writer.writerow({'origin_lat': dict['origin_lat'], 'origin_long': dict['origin_long'], 'destination_lat': dict['destination_lat'], 'destination_long': dict['destination_long'], 'cairo_date': dict['cairo_date'], 'cairo_time': dict['cairo_time'], 'distance(driving)': dict['distance(driving)'], 'duration(driving)': dict['duration(driving)'], 'distance(walking)': dict['distance(walking)'], 'duration(walking)': dict['duration(walking)']})
-
+            writer.writerow({"coord": doc["coord"],
+                             "cairo_time": doc["cairo_time"],
+                             "query_time": doc["query_time"],
+                             "origin_latlong": doc["origin_latlong"],
+                             "destination_latlong": doc["destination_latlong"],
+                             "driving_distance": doc["driving_distance"],
+                             "driving_duration": doc["driving_duration"],
+                             "walking_distance": doc["walking_distance"],
+                             "walking_duration": doc["walking_duration"]
+                             })
     csv_file.close()
 
     slack_notification("Cairo Crawler: CSV file was successfully written to the shared disk.")
