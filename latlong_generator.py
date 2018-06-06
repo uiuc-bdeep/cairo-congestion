@@ -159,7 +159,7 @@ def generate_latlongs(amt=10):
     random.seed(0) # Seeded for testing purposes
     cells = generate_cells()
 
-    #generate_cell_coordinates(cells)
+    generate_cell_coordinates(cells)
 
     latlong_list = []
 
@@ -181,15 +181,6 @@ def generate_latlongs(amt=10):
         latlong_dict["coord"] = coord
         latlong_dict["latlongs"] = latlongs
         latlong_list.append(latlong_dict)
-
-    #num_trips = 100
-    #latlong_list = random.sample(latlong_list, num_trips * 2)
-    #origin = latlong_list[:num_trips]
-    #destination = latlong_list[num_trips:]
-
-    #latlong_list = []
-    #for idx, _ in enumerate(range(num_trips)):
-    #    latlong_list.append({'origin': origin[idx], 'destination': destination[idx]})
 
     return latlong_list
 
@@ -237,12 +228,3 @@ def visualize():
     gmap.scatter(random_lats, random_longs, "#3B0B39", size=40, marker=False)
 
     gmap.draw("cairo_map2.html")
-
-#latlong_list = generate_latlongs()
-#
-#for latlong_d in latlong_list:
-#    values = list(latlong_d.values())
-#    print("Coordinate: {0}".format(values[0]))
-#    for latlong in values[1]:
-#        print(latlong)
-#    print('\n')

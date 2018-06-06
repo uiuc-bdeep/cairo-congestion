@@ -54,14 +54,16 @@ def request_API(origin, destination, mode):
     Returns:
         distance: distance of this trip
         duration: duration of this trip
+        duration_in_traffic: The length of time it takes to travel this route, based on current and historical traffic conditions.
     """
 
     base_url = "https://maps.googleapis.com/maps/api/distancematrix/json?"
-    final_url = base_url+"origins="+origin+"&destinations="+destination+"&mode="+mode+"&key="+API_key
+    final_url = base_url+"origins="+origin+"&destinations="+destination+"&departure_time=now&mode="+mode+"&key="+API_key
     print(final_url)
 
     distance = 0
     duration = 0
+    duration_in_traffic = 0
 
     try:
         r = requests.get(final_url)
@@ -74,8 +76,14 @@ def request_API(origin, destination, mode):
                         try:
                             distance = elem['distance']['value']
                             duration = elem['duration']['value']
+
+                            if mode == 'driving':
+                                try:
+                                    duration_in_traffic = elem['duration_in_traffic']['value']
+                                except:
+                                    print("duration_in_traffic doesn't exist.")
                         except:
-                            print("Error occurred when parsing response." )
+                            print("Error occurred when parsing response.")
 
                     else:
                         print("Element status is not OK: " + elem['status'])
@@ -87,7 +95,7 @@ def request_API(origin, destination, mode):
     except requests.exceptions.RequestException as e:
         slack_notification("Cairo Crawler: Error when crawling")
 
-    return distance, duration
+    return distance, duration, duration_in_traffic
 
 def crawl_trip(cells):
     client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'],27017)
@@ -100,7 +108,7 @@ def crawl_trip(cells):
 
     trip_list = []
 
-    modes = ['driving', 'walking']
+    modes = ['walking', 'driving']
     cairo_datetime = datetime.utcnow() + timedelta(hours=2)
     cairo_date = cairo_datetime.strftime("%Y-%m-%d")
     cairo_time = cairo_datetime.strftime("%H:%M:%S")
@@ -108,13 +116,11 @@ def crawl_trip(cells):
     query_date = query_datetime.strftime("%Y-%m-%d")
     query_time = query_datetime.strftime("%H:%M:%S")
 
-    # origin = '30.016877118743416,31.369837007062927'
-    # destination = '30.011917246091414,31.36908297493297'
-
     for document in cursor:
+        num_trips = 5
         coord = document["coord"]
-        orig_latlongs = document["latlongs"][:5]
-        dest_latlongs = document["latlongs"][5:]
+        orig_latlongs = document["latlongs"][:num_trips]
+        dest_latlongs = document["latlongs"][num_trips:]
 
         for orig_latlong, dest_latlong in zip(orig_latlongs, dest_latlongs):
             origin = str(orig_latlong[0]) + ',' + str(orig_latlong[1])
@@ -130,14 +136,17 @@ def crawl_trip(cells):
                     "destination_lat": dest_latlong[0],
                     "destination_long": dest_latlong[1]
                     }
+
             for mode in modes:
-                distance, duration = request_API(origin, destination, mode)
+                distance, duration, duration_in_traffic = request_API(origin, destination, mode)
                 mode_distance = mode + "_distance"
                 mode_duration = mode + "_duration"
                 trip[mode_distance] = distance
                 trip[mode_duration] = duration
+                trip['driving_duration_in_traffic'] = duration_in_traffic
 
             trip_list.append(trip)
+
     db.crawled_trips.insert_many(trip_list)
 
     slack_notification("Cairo Crawler: Crawling Successful.")

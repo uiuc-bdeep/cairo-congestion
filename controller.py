@@ -77,8 +77,10 @@ def slack_notification(slack_msg):
         logger.info("Cairo Crawler: Error while sending controller Slack notification")
         logger.info(e)
 
-def crawl(cells):
+def crawl():
+    global cells
     crawl_trip(cells)
+    print("Crallw")
     return schedule.CancelJob
 
 def write_csv():
@@ -89,44 +91,31 @@ def schedule_trips():
     global running
     running = 1
 
-    start_days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]
-    timestamps = ["23:00", "23:20", "23:40", "00:00", "00:20", "00:40", "01:00",
-                  "01:20", "01:40", "02:00", "02:20", "02:40", "03:00", "03:20",
-                  "03:40", "04:00", "04:20", "04:40", "05:00", "05:20", "05:40",
-                  "06:00", "06:20", "06:40", "07:00", "07:20", "07:40", "08:00",
-                  "08:20", "08:40", "09:00"]
+    timestamps = ["04:00", "04:20", "04:40", "05:00", "05:20", "05:40", "06:00",
+                  "06:20", "06:40", "07:00", "07:20", "07:40", "08:00", "08:20",
+                  "08:40", "09:00", "09:20", "09:40", "10:00", "10:20", "10:40",
+                  "11:00", "11:20", "11:40", "12:00", "12:20", "12:40", "13:00",
+                  "13:20", "13:40", "14:00"]
 
-
-    # Schedule Sunday trips
-    schedule.every().sunday.at(timestamps[0]).do(crawl, cells)
-    schedule.every().sunday.at(timestamps[1]).do(crawl, cells)
-    schedule.every().sunday.at(timestamps[2]).do(crawl, cells)
-    for timestamp in timestamps[3:]:
-        schedule.every().monday.at(timestamp).do(crawl, cells)
     # Schedule Monday trips
-    schedule.every().monday.at(timestamps[0]).do(crawl, cells)
-    schedule.every().monday.at(timestamps[1]).do(crawl, cells)
-    schedule.every().monday.at(timestamps[2]).do(crawl, cells)
-    for timestamp in timestamps[3:]:
-        schedule.every().tuesday.at(timestamp).do(crawl, cells)
+    for timestamp in timestamps:
+        schedule.every().monday.at(timestamp).do(crawl)
     # Schedule Tuesday trips
-    schedule.every().tuesday.at(timestamps[0]).do(crawl, cells)
-    schedule.every().tuesday.at(timestamps[1]).do(crawl, cells)
-    schedule.every().tuesday.at(timestamps[2]).do(crawl, cells)
-    for timestamp in timestamps[3:]:
-        schedule.every().wednesday.at(timestamp).do(crawl, cells)
+    for timestamp in timestamps:
+        schedule.every().tuesday.at(timestamp).do(crawl)
     # Schedule Wednesday trips
-    schedule.every().wednesday.at(timestamps[0]).do(crawl, cells)
-    schedule.every().wednesday.at(timestamps[1]).do(crawl, cells)
-    schedule.every().wednesday.at(timestamps[2]).do(crawl, cells)
-    for timestamp in timestamps[3:]:
-        schedule.every().thursday.at(timestamp).do(crawl, cells)
+    for timestamp in timestamps:
+        schedule.every().wednesday.at(timestamp).do(crawl)
     # Schedule Thursday trips
-    schedule.every().thursday.at(timestamps[0]).do(crawl, cells)
-    schedule.every().thursday.at(timestamps[1]).do(crawl, cells)
-    schedule.every().thursday.at(timestamps[2]).do(crawl, cells)
-    for timestamp in timestamps[3:]:
-        schedule.every().friday.at(timestamp).do(crawl, cells)
+    for timestamp in timestamps:
+        schedule.every().thursday.at(timestamp).do(crawl)
+    # Schedule Friday trips
+    for timestamp in timestamps:
+        schedule.every().friday.at(timestamp).do(crawl)
+
+    slack_msg = "Cairo Crawler: Scheduled Crawling Trips"
+    slack_notification(slack_msg)
+
 
 def end_scheduler():
     global running
@@ -147,30 +136,31 @@ def load_latlongs():
     slack_msg = "Cairo Crawler: Inserted Random Latitude/Longitudes into MongoDB"
     slack_notification(slack_msg)
 
-slack_msg = "Cairo Crawler: Initiating Controller"
-slack_notification(slack_msg)
 
 def main():
+    slack_msg = "Cairo Crawler: Initiating Controller"
+    slack_notification(slack_msg)
+
     db.latlongs.drop()
     db.crawled_trips.drop()
 
     load_latlongs()
+
     while True:
         # Schedule crawls every Sunday-Thursday on 11:00PM
         schedule_trips()
 
-        # Schedule CSV file creation every Monday-Friday
-        schedule.every().monday.at("10:00").do(write_csv)
-        schedule.every().tuesday.at("10:00").do(write_csv)
-        schedule.every().wednesday.at("10:00").do(write_csv)
-        schedule.every().thursday.at("10:00").do(write_csv)
-        schedule.every().friday.at("10:00").do(write_csv)
-        schedule.every().friday.at("11:00").do(end_scheduler)
+        # # Schedule CSV file creation every Monday-Friday
+        schedule.every().monday.at("15:00").do(write_csv)
+        schedule.every().tuesday.at("15:00").do(write_csv)
+        schedule.every().wednesday.at("15:00").do(write_csv)
+        schedule.every().thursday.at("15:00").do(write_csv)
+        schedule.every().friday.at("15:00").do(write_csv)
+        schedule.every().friday.at("16:00").do(end_scheduler)
 
         while True and running:
             schedule.run_pending()
             time.sleep(1)
-
 
 if __name__ == "__main__":
     main()

@@ -48,14 +48,26 @@ def make_csv():
     slack_notification("Cairo Crawler: Writing CSV file.")
 
     with open(csv_path, 'w') as csv_file:
-        fieldnames = ["coord_x", "coord_y", "cairo_date", "cairo_time", 
-                      "query_date", "query_time", "origin_lat", "origin_long", 
-                      "destination_lat", "destination_long", "driving_distance", 
-                      "driving_duration", "walking_distance", "walking_duration"]
+        fieldnames = ["id", "coord_x", "coord_y", "cairo_date", "cairo_time",
+                      "query_date", "query_time", "origin_lat", "origin_long",
+                      "destination_lat", "destination_long", "driving_distance",
+                      "driving_duration", "driving_duration_in_traffic", "walking_distance", "walking_duration"]
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         for doc in cursor:
-            writer.writerow({"coord_x": doc["coord_x"],
+            id = ''
+            if doc["coord_x"] < 10:
+                id += '0' + str(doc["coord_x"])
+            else:
+                id += str(doc["coord_x"])
+
+            if doc["coord_y"] < 10:
+                id += '0' + str(doc["coord_y"])
+            else:
+                id += str(doc["coord_y"])
+
+            writer.writerow({"id": id,
+                             "coord_x": doc["coord_x"],
                              "coord_y": doc["coord_y"],
                              "cairo_date": doc["cairo_date"],
                              "cairo_time": doc["cairo_time"],
@@ -67,6 +79,7 @@ def make_csv():
                              "destination_long": doc["destination_long"],
                              "driving_distance": doc["driving_distance"],
                              "driving_duration": doc["driving_duration"],
+                             "driving_duration_in_traffic": doc["driving_duration_in_traffic"],
                              "walking_distance": doc["walking_distance"],
                              "walking_duration": doc["walking_duration"]
                              })
