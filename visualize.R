@@ -21,6 +21,7 @@ pkgTest <- function(x)
 # load required packages
 
 packages <- c("dplyr",
+              "lfe",
               "lubridate",
               "stringr",
               "ggmap",
@@ -57,10 +58,10 @@ ggsave("origins.png", height = 5, width = 8, dpi = 300)
 
 # convert to minutes
 
-test$driving_duration <- test$driving_duration / 60
+test$driving_duration_in_traffic <- test$driving_duration_in_traffic / 60
 
 ggplot(test) +
-  geom_histogram(aes(driving_duration), binwidth = 1) +
+  geom_histogram(aes(driving_duration_in_traffic), binwidth = 1) +
   ggtitle("Cairo Crawler Test", subtitle = "Test Run 06/07/2018") + 
   xlab("Duration (Minutes)") +
   ylab("Number of Trips") +
@@ -74,7 +75,9 @@ ggsave("distribution.png", height = 5, width = 8, dpi = 300)
 
 test <- group_by(test, cairo_time)
 
-test1 <- summarise(test, mean = mean(driving_duration), sd = sd(driving_duration))
+test1 <- summarise(test, 
+                   mean = mean(driving_duration_in_traffic), 
+                   sd = sd(driving_duration_in_traffic))
 
 # create confidence intervals 
 
@@ -91,7 +94,7 @@ test1$cairo_time <- as.POSIXct(test1$cairo_time, format = "%H:%M:%S")
 ggplot() + 
     geom_line(mapping = aes(x = cairo_time, y = mean), data = test1) +
     xlab("Time of Day") + ylab("Average Duration /n (Minutes)") +
-    ggtitle("Distribution of Travel Time Over Course of Day", "Test Run 06/07/2018") + 
+    ggtitle("Average Duration Over Time", "Test Run 06/07/2018") + 
     theme_bw()
   
 ggsave("time-of-day.png", height = 5, width = 8, dpi = 300)
