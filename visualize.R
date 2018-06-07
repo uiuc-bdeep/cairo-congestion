@@ -57,10 +57,10 @@ ggsave("origins.png", height = 5, width = 8, dpi = 300)
 
 # convert to minutes
 
-test$duration.driving. <- test$duration.driving. / 60
+test$driving_duration <- test$driving_duration / 60
 
 ggplot(test) +
-  geom_histogram(aes(duration.driving.), binwidth = 1) +
+  geom_histogram(aes(driving_duration), binwidth = 1) +
   ggtitle("Cairo Crawler Test", subtitle = "Test Run 06/07/2018") + 
   xlab("Duration (Minutes)") +
   ylab("Number of Trips") +
