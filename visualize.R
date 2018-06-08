@@ -99,6 +99,60 @@ ggplot() +
   
 ggsave("time-of-day.png", height = 5, width = 8, dpi = 300)
 
+# group trips by grid cell
+
+test <- group_by(test, cairo_time, id)
+
+test1 <- summarise(test, 
+                   mean = mean(driving_duration_in_traffic), 
+                   sd = sd(driving_duration_in_traffic))
+
+ggsave("time-of-day-grid.png", height = 5, width = 8, dpi = 300)
+
+# generate trip IDs
+
+trips <- as.data.frame(cbind(test$origin_lat, test$origin_long, test$destination_lat, test$destination_long))
+trips <- unique(trips)
+trips$trip_id <- seq.int(nrow(trips))
+
+names(trips)[names(trips) == "V1"] <- "origin_lat"
+names(trips)[names(trips) == "V2"] <- "origin_long"
+names(trips)[names(trips) == "V3"] <- "destination_lat"
+names(trips)[names(trips) == "V4"] <- "destination_long"
+
+# merge 
+
+test <- merge(test, trips, by = c("origin_lat", "origin_long", "destination_lat", "destination_long"), all.x = TRUE)
+
 # regress travel times on time of day with trip FEs
+
+test$cairo_time <- as.factor(test$cairo_time)
+
+m1 <- felm(driving_duration_in_traffic ~ cairo_time | trip_id, data = test) 
+
+coef <- as.data.frame(summary(m1)$coefficients)
+
+coef <- cbind(test1$cairo_time[2:31], coef)
+names(coef)[names(coef) == "test1$cairo_time[2:31]"] <- "cairo_time"
+
+coef$cairo_time <- format(coef$cairo_time, format = "%H:%M:%S")
+coef$cairo_time <- as.POSIXct(coef$cairo_time, format = "%H:%M:%S")
+
+coef$ci1 <- coef$Estimate - 1.96 * coef$`Std. Error`
+coef$ci2 <- coef$Estimate + 1.96 * coef$`Std. Error`
+
+# plot
+
+ggplot() + 
+  ggtitle("Regress duration on time of day",
+          subtitle = "with Trip FEs, Test Run 06/07/2018") +
+  ylab("Estimate") +
+  xlab("Time of Day") +
+  geom_line(mapping = aes(x = cairo_time, y = Estimate), data = coef) + 
+  geom_ribbon(mapping = aes(x = cairo_time, ymin = ci1, ymax = ci2), data = coef, alpha = 0.5) +
+  theme_bw()
+
+ggsave("estimate.png", height = 5, width = 8, dpi = 300)
+
 
 
