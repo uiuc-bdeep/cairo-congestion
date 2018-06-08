@@ -1,10 +1,10 @@
 """
-File Name: controller.py
-Author: Brian Ko (swko2@illinois.edu)
-Maintainer: Brian Ko (swko2@illinois.edu)
-Description:
-    This is the main script that controls the initiation, scheduling,
-    and the operation of the Cairo crawler.
+        File Name: controller.py
+        Author: Brian Ko (swko2@illinois.edu)
+        Maintainer: Brian Ko (swko2@illinois.edu)
+        Description:
+            This is the main script that controls the initiation, scheduling,
+            and the operation of the Cairo crawler.
 """
 
 import os
@@ -19,12 +19,14 @@ from crawler import crawl_trip
 from csv_writer import make_csv
 from pymongo import MongoClient
 
-
+# Global variable for scheduling
 running = 1
 
+# Initiate connection with MongoDB
 client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'],27017)
 db = client.cairo_trial
 
+# Specific cells that are going to be crawled
 cells = [{"coord": [17,8]},
          {"coord": [17,9]},
          {"coord": [17,10]},
@@ -44,9 +46,9 @@ cells = [{"coord": [17,8]},
 
 
 def logging_init():
-    """Initiates the logger
-    Initiates the logger, the logger handler (for file handling), and the
-    formatter
+    """
+        Initiates the logger, the logger handler (for file handling), and the
+        formatter
     """
 
     logger = logging.getLogger("cairo_crawler")
@@ -61,14 +63,14 @@ def logging_init():
     return logger, log_handler
 
 def slack_notification(slack_msg):
-    """Send slack notification
-    Send slack notification with custom messages for different purposes
-    Args:
-    slack_msg: The custom message being sent.
+    """
+        Send slack notification with custom messages for different purposes
+
+        Args:
+            slack_msg: The custom message being sent.
     """
 
     slack_url = "https://hooks.slack.com/services/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"
-
     payload = {"text": slack_msg}
 
     try:
@@ -78,20 +80,50 @@ def slack_notification(slack_msg):
         logger.info(e)
 
 def crawl():
-    global cells
+    """
+        Calls the crawling method and then cancels the scheduled trip to make
+        sure that jobs aren't repeated
+
+        Returns:
+            schedule.CancelJob: Cancels the job to prevent repetition of jobs
+    """
+
     crawl_trip(cells)
-    print("Crallw")
     return schedule.CancelJob
 
 def write_csv():
+    """
+        Calls the csv creation method and then cancels the scheduled trip to
+        make sure that jobs aren't repeated
+
+        Returns:
+            schedule.CancelJob: Cancels the job to prevent reptition of jobs
+    """
+
     make_csv()
     return schedule.CancelJob
 
 def schedule_trips():
+    """
+        Schedules all the crawl trips from Monday-Friday during the specified
+        timestamps.
+    """
+
+    # Set running to 1 so that schedule will continuously run pending jobs
     global running
     running = 1
 
-    timestamps = ["04:00", "04:20", "04:40", "05:00", "05:20", "05:40", "06:00",
+    # Timestamps contains all the times in which the crawling will run. All the
+    # timestamps are in UTC time, which is the timezone in which the server is
+    # running. The UTC timezone is two hours behind Cairo time and five hours
+    # ahead of Champaign time.
+    #timestamps = ["04:00", "04:20", "04:40", "05:00", "05:20", "05:40", "06:00",
+    #              "06:20", "06:40", "07:00", "07:20", "07:40", "08:00", "08:20",
+    #              "08:40", "09:00", "09:20", "09:40", "10:00", "10:20", "10:40",
+    #              "11:00", "11:20", "11:40", "12:00", "12:20", "12:40", "13:00",
+    #              "13:20", "13:40", "14:00"]
+
+    timestamps = ["05:00", "05:20", "05:40", "06:00",
                   "06:20", "06:40", "07:00", "07:20", "07:40", "08:00", "08:20",
                   "08:40", "09:00", "09:20", "09:40", "10:00", "10:20", "10:40",
                   "11:00", "11:20", "11:40", "12:00", "12:20", "12:40", "13:00",
@@ -116,17 +148,23 @@ def schedule_trips():
     slack_msg = "Cairo Crawler: Scheduled Crawling Trips"
     slack_notification(slack_msg)
 
-
 def end_scheduler():
+    """
+        Ensures that at the end of all the crawling trips and csv creation on
+        Friday, the scheduler will stop.
+    """
+
+    # Set running to 0 to make sure that schedule will stop running pending jobs
     global running
     running = 0
     return schedule.CancelJob
 
 def load_latlongs():
-    """Generates and stores the lat/longs in a database
-    Calls the generate_latlongs method from latlong_generator.py and stores
-    the generated data in a MongoDB database.
     """
+        Calls the generate_latlongs method from latlong_generator.py and stores
+        the generated data in a MongoDB database.
+    """
+
     slack_msg = "Cairo Crawler: Generating Random Latitude/Longitudes"
     slack_notification(slack_msg)
 
@@ -136,21 +174,22 @@ def load_latlongs():
     slack_msg = "Cairo Crawler: Inserted Random Latitude/Longitudes into MongoDB"
     slack_notification(slack_msg)
 
-
 def main():
     slack_msg = "Cairo Crawler: Initiating Controller"
     slack_notification(slack_msg)
 
+    # Drops all the collections to ensure fresh data (Testing purposes)
     db.latlongs.drop()
     db.crawled_trips.drop()
 
     load_latlongs()
 
+    #
     while True:
         # Schedule crawls every Sunday-Thursday on 11:00PM
         schedule_trips()
 
-        # # Schedule CSV file creation every Monday-Friday
+        # Schedule CSV file creation every Monday-Friday
         schedule.every().monday.at("15:00").do(write_csv)
         schedule.every().tuesday.at("15:00").do(write_csv)
         schedule.every().wednesday.at("15:00").do(write_csv)
@@ -158,6 +197,7 @@ def main():
         schedule.every().friday.at("15:00").do(write_csv)
         schedule.every().friday.at("16:00").do(end_scheduler)
 
+        # Continuously run pending jobs
         while True and running:
             schedule.run_pending()
             time.sleep(1)
