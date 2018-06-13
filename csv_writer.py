@@ -40,12 +40,17 @@ def make_csv():
             id: Identification number for each csv file we generate.
     """
 
-    csv_path = "/data/cairo-congestion.csv"
-
     client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'],27017)
     db = client.cairo_trial
     crawled_trips = db.crawled_trips
     cursor = list(crawled_trips.find({}))
+
+    date = ''
+    for doc in cursor:
+        date = doc["cairo_date"]
+        break
+
+    csv_path = "/data/cairo-congestion-"+str(date)+".csv"
 
     slack_notification("Cairo Crawler: Writing CSV file.")
 
@@ -78,7 +83,7 @@ def make_csv():
                 trip_num += 1
 
             id = cell
-            # Assume there're less than 10 trips
+            # Assume there're less than 100 trips
             if trip_num < 10:
                 id += '0' + str(trip_num)
             else:
