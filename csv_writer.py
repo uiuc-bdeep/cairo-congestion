@@ -36,6 +36,8 @@ def slack_notification(slack_msg):
 def make_csv():
     """
         Pulls trips from the database, and output to a CSV file.
+        Args:
+            id: Identification number for each csv file we generate.
     """
 
     csv_path = "/data/cairo-congestion.csv"
@@ -54,17 +56,33 @@ def make_csv():
                       "driving_duration", "driving_duration_in_traffic", "walking_distance", "walking_duration"]
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
+
+        curr_cell = ''
+        trip_num = 0
         for doc in cursor:
-            id = ''
+            cell = ''
             if doc["coord_x"] < 10:
-                id += '0' + str(doc["coord_x"])
+                cell += '0' + str(doc["coord_x"])
             else:
-                id += str(doc["coord_x"])
+                cell += str(doc["coord_x"])
 
             if doc["coord_y"] < 10:
-                id += '0' + str(doc["coord_y"])
+                cell += '0' + str(doc["coord_y"])
             else:
-                id += str(doc["coord_y"])
+                cell += str(doc["coord_y"])
+
+            if cell != curr_cell:
+                curr_cell = cell
+                trip_num = 0
+            else:
+                trip_num += 1
+
+            id = cell
+            # Assume there're less than 10 trips
+            if trip_num < 10:
+                id += '0' + str(trip_num)
+            else:
+                id += str(trip_num)
 
             writer.writerow({"id": id,
                              "coord_x": doc["coord_x"],
