@@ -27,22 +27,22 @@ client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'],27017)
 db = client.cairo_trial
 
 # Specific cells that are going to be crawled
-cells = [{"coord": [17,8]},
-         {"coord": [17,9]},
-         {"coord": [17,10]},
-         {"coord": [17,11]},
-         {"coord": [18,8]},
-         {"coord": [18,9]},
-         {"coord": [18,10]},
-         {"coord": [18,11]},
-         {"coord": [19,8]},
-         {"coord": [19,9]},
-         {"coord": [19,10]},
-         {"coord": [19,11]},
-         {"coord": [20,8]},
-         {"coord": [20,9]},
-         {"coord": [20,10]},
-         {"coord": [20,11]}]
+cells = [{"coord": [4,5]}, # 6th of October City
+         {"coord": [4,6]}, # 6th of October City
+         {"coord": [6,10]}, # Sheikh Zayed City
+         {"coord": [7, 10]}, # Sheikh Zayed City
+         {"coord": [16,8]}, # Cairo
+         {"coord": [16,9]}, # Cairo
+         {"coord": [25,8]}, # New Cairo City
+         {"coord": [26,9]}, # New Cairo City
+         {"coord": [20,14]}, # Al Marj
+         {"coord": [20,15]}, # Al Marj
+         {"coord": [25,18]}, # El Obour City
+         {"coord": [25,19]}, # El Obour City
+         {"coord": [31,14]}, # El Shorouk City
+         {"coord": [31,15]}, # El Shorouk City
+         {"coord": [35,17]}, # 10th of Ramadan City
+         {"coord": [36,17]}] # 10th of Ramadan City
 
 
 def logging_init():
