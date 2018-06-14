@@ -83,7 +83,7 @@ def make_csv():
                 trip_num += 1
 
             id = cell
-            # Assume there're less than 100 trips
+            # Assume there're less than 100 trips per cell
             if trip_num < 10:
                 id += '0' + str(trip_num)
             else:
