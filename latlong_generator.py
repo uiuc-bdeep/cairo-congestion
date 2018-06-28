@@ -161,13 +161,14 @@ def generate_latlongs(amt=10):
         in dictionary form.
 
         Args:
-            amt: The amount of samples to take in each cell.
+            amt: The amount of samples to take in each cell. Must be a even number.
 
         Returns:
             latlong_list: A list of dictionaries, each of which contains key-value
                           pairs of coordinates and a set of randomly sampled
                           lat/long pairs.
     """
+    assert(amt % 2 == 0), "Number of trips in each cell must be a even number."
 
     random.seed(0) # Seeded for testing purposes
     cells = generate_cells()
@@ -197,8 +198,8 @@ def generate_latlongs(amt=10):
                 longitude = random.uniform(*longs)
                 longitudes.append(longitude)
             latlongs = list(zip(latitudes, longitudes))
-            origin = latlongs[:5]
-            destination = latlongs[5:]
+            origin = latlongs[:int(amt/2)]
+            destination = latlongs[int(amt/2):]
             distance = []
             for x in range(len(origin)):
                 distance.append(geodesic(origin[x], destination[x]))
@@ -212,9 +213,6 @@ def generate_latlongs(amt=10):
     return latlong_list
 
 def visualize():
-    """
-
-    """
 
     gmap = gmplot.GoogleMapPlotter(30.079384, 31.325557, 11)
 

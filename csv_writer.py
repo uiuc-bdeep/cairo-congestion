@@ -33,6 +33,32 @@ def slack_notification(slack_msg):
         logger.info("Cairo Crawler: Error while sending controller Slack notification")
         logger.info(e)
 
+def generate_id(doc, trip_num, curr_cell):
+    cell = ''
+    if doc["coord_x"] < 10:
+        cell += '0' + str(doc["coord_x"])
+    else:
+        cell += str(doc["coord_x"])
+
+    if doc["coord_y"] < 10:
+        cell += '0' + str(doc["coord_y"])
+    else:
+        cell += str(doc["coord_y"])
+
+    if cell != curr_cell:
+        curr_cell = cell
+        trip_num = 0
+    else:
+        trip_num += 1
+
+    id = cell
+    # Assume there're less than 100 trips per cell
+    if trip_num < 10:
+        id += '0' + str(trip_num)
+    else:
+        id += str(trip_num)
+    return id, trip_num, curr_cell
+
 def make_csv():
     """
         Pulls trips from the database, and output to a CSV file.
@@ -65,29 +91,7 @@ def make_csv():
         curr_cell = ''
         trip_num = 0
         for doc in cursor:
-            cell = ''
-            if doc["coord_x"] < 10:
-                cell += '0' + str(doc["coord_x"])
-            else:
-                cell += str(doc["coord_x"])
-
-            if doc["coord_y"] < 10:
-                cell += '0' + str(doc["coord_y"])
-            else:
-                cell += str(doc["coord_y"])
-
-            if cell != curr_cell:
-                curr_cell = cell
-                trip_num = 0
-            else:
-                trip_num += 1
-
-            id = cell
-            # Assume there're less than 100 trips per cell
-            if trip_num < 10:
-                id += '0' + str(trip_num)
-            else:
-                id += str(trip_num)
+            id, trip_num, curr_cell = generate_id(doc, trip_num, curr_cell)
 
             writer.writerow({"id": id,
                              "coord_x": doc["coord_x"],

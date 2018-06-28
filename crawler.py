@@ -21,6 +21,10 @@ from bson.objectid import ObjectId
 
 API_key = "AIzaSyADEXdHuYJDPa2K5oSzBxAUxCGEzzRvzi0"
 
+highway_origin = ['30.00883,30.98311', '30.04729,31.21164', '30.01589,31.22906', '30.0074,31.1378', '29.99924,31.11619', '29.99004,31.22926', '30.0406,31.27429', '29.98631,31.14014', '30.03543,31.19842','30.07392,31.22743', '30.05899,31.19005', '30.04491,31.1943', '30.0231,31.23099' , '30.04964,31.23498', '30.07804,31.27811', '30.04435,31.23404', '30.03878,31.24374', '30.01596,31.40257', '30.02239,31.25536', '30.00522,31.2723', '30.01171,31.21782', '30.04069,31.21996', '30.08082,31.449', '30.15221,31.43613', '30.05037,31.27541']
+
+highway_destination = ['30.06227,31.1739', '30.05888,31.3027', '30.08064,31.31678', '29.98999,31.22891', '30.07043,31.0135', '29.99984,31.39549', '30.08006,31.36171', '30.01292,31.20846', '30.04417,31.24352', '29.96512,31.2431', '30.01489,31.20516', '30.06055,31.20855', '30.04361,31.23601', '30.05902,31.24447', '30.05657,31.24058', '30.03989,31.21812', '30.05234,31.24425', '30.02518,31.47312', '30.02464,31.25959', '29.96445,31.28756', '29.98798,31.21479', '30.07561,31.22305', '30.10563,31.6032', '30.12723,31.35643', '30.1057,31.36047']
+
 def slack_notification(slack_msg):
     """
         Send slack notification with custom messages for different purposes
@@ -116,8 +120,38 @@ def crawl_trip(cells):
     query_date = query_datetime.strftime("%Y-%m-%d")
     query_time = query_datetime.strftime("%H:%M:%S")
 
+    for idx, _ in enumerate(highway_origin):
+
+        origin = highway_origin[idx]
+        destination = highway_destination[idx]
+
+        origin_list = origin.split(',')
+        destination_list = destination.split(',')
+
+        trip = {"coord_x": 99,
+                "coord_y": 99,
+                "cairo_date": cairo_date,
+                "cairo_time": cairo_time,
+                "query_date": query_date,
+                "query_time": query_time,
+                "origin_lat": origin_list[0],
+                "origin_long": destination_list[1],
+                "destination_lat": origin_list[0],
+                "destination_long": destination_list[1]
+                }
+
+        for mode in modes:
+            distance, duration, duration_in_traffic = request_API(origin, destination, mode)
+            mode_distance = mode + "_distance"
+            mode_duration = mode + "_duration"
+            trip[mode_distance] = distance
+            trip[mode_duration] = duration
+            trip['driving_duration_in_traffic'] = duration_in_traffic
+
+        trip_list.append(trip)
+
     for document in cursor:
-        num_trips = 5
+        num_trips = 1
         coord = document["coord"]
         orig_latlongs = document["latlongs"][:num_trips]
         dest_latlongs = document["latlongs"][num_trips:]
