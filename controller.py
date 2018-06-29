@@ -151,6 +151,12 @@ def schedule_trips():
     for timestamp in timestamps:
         schedule.every().friday.at(timestamp).do(crawl)
 
+    for timestamp in timestamps:
+        schedule.every().saturday.at(timestamp).do(crawl)
+
+    for timestamp in timestamps:
+        schedule.every().sunday.at(timestamp).do(crawl)
+
     slack_msg = "Cairo Crawler: Scheduled Crawling Trips"
     slack_notification(slack_msg)
 
@@ -200,7 +206,9 @@ def main():
         schedule.every().wednesday.at("15:00").do(write_csv)
         schedule.every().thursday.at("15:00").do(write_csv)
         schedule.every().friday.at("15:00").do(write_csv)
-        schedule.every().friday.at("16:00").do(end_scheduler)
+        schedule.every().saturday.at("15:00").do(write_csv)
+        schedule.every().sunday.at("15:00").do(write_csv)
+        # schedule.every().friday.at("16:00").do(end_scheduler)
 
         # Continuously run pending jobs
         while True and running:
