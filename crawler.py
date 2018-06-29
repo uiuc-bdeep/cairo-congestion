@@ -151,7 +151,7 @@ def crawl_trip(cells):
         trip_list.append(trip)
 
     for document in cursor:
-        num_trips = 1
+        num_trips = 5
         coord = document["coord"]
         orig_latlongs = document["latlongs"][:num_trips]
         dest_latlongs = document["latlongs"][num_trips:]
