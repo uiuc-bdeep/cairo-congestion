@@ -90,7 +90,7 @@ def generate_cells(x_amt=40, y_amt=24, t_l=TOP_LEFT, t_r=TOP_RIGHT, b_l=BOT_LEFT
             latlong.append((lats[x],longs[y]))
             latlong.append((lats[x+1],longs[y+1]))
             latlongs_dict = {}
-            latlongs_dict["coord"] = (x,y)
+            latlongs_dict["coord"] = (y,x)
             latlongs_dict["latlongs"] = latlong
             cells.append(latlongs_dict)
 
@@ -254,6 +254,32 @@ def visualize():
     for lat in lats:
         gmap.plot((lat, lat), (30.808111, 31.843003), 'red', edge_width=1)
 
-    gmap.scatter(random_lats, random_longs, "#3B0B39", size=40, marker=False)
+    cells = [{"coord": [3,5]},
+             {"coord": [3,6]},
+             {"coord": [4,5]},
+             {"coord": [4,6]},
+             {"coord": [15,9]},
+             {"coord": [15,10]},
+             {"coord": [15,11]},
+             {"coord": [16,9]},
+             {"coord": [16,10]},
+             {"coord": [16,11]},
+             {"coord": [17,9]},
+             {"coord": [17,10]},
+             {"coord": [17,11]},
+             {"coord": [18,11]},
+             {"coord": [18,12]},
+             {"coord": [19,11]},
+             {"coord": [19,12]},
+             {"coord": [20,11]},
+             {"coord": [20,12]},
+             {"coord": [20,13]}
+             ]
+
+
+
+    gmap.marker(30.251160198241262, 31.0967144084, 'cornflowerblue')
 
     gmap.draw("cairo_map2.html")
+
+visualize()
