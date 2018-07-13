@@ -122,18 +122,12 @@ def schedule_trips():
     # timestamps are in UTC time, which is the timezone in which the server is
     # running. The UTC timezone is two hours behind Cairo time and five hours
     # ahead of Champaign time.
-    #timestamps = ["04:00", "04:20", "04:40", "05:00", "05:20", "05:40", "06:00",
-    #              "06:20", "06:40", "07:00", "07:20", "07:40", "08:00", "08:20",
-    #              "08:40", "09:00", "09:20", "09:40", "10:00", "10:20", "10:40",
-    #              "11:00", "11:20", "11:40", "12:00", "12:20", "12:40", "13:00",
-    #              "13:20", "13:40", "14:00"]
 
-    # Crawl data at Cairo time from 7am to 4pm
-    timestamps = ["05:00", "05:20", "05:40", "06:00",
-                  "06:20", "06:40", "07:00", "07:20", "07:40", "08:00", "08:20",
-                  "08:40", "09:00", "09:20", "09:40", "10:00", "10:20", "10:40",
-                  "11:00", "11:20", "11:40", "12:00", "12:20", "12:40", "13:00",
-                  "13:20", "13:40", "14:00"]
+    # Crawl data 24/7/365
+    timestamps = ["22:00", "23:00", "00:00", "01:00", "02:00", "03:00",
+                  "04:00", "05:00", "06:00", "07:00", "08:00", "09:00",
+                  "10:00", "11:00", "12:00", "13:00", "14:00", "15:00",
+                  "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"]
 
     # Schedule Monday trips
     for timestamp in timestamps:
@@ -150,10 +144,10 @@ def schedule_trips():
     # Schedule Friday trips
     for timestamp in timestamps:
         schedule.every().friday.at(timestamp).do(crawl)
-
+    # Schedule Saturday trips
     for timestamp in timestamps:
         schedule.every().saturday.at(timestamp).do(crawl)
-
+    # Schedule Sunday trips
     for timestamp in timestamps:
         schedule.every().sunday.at(timestamp).do(crawl)
 
@@ -201,19 +195,18 @@ def main():
         schedule_trips()
 
         # Schedule CSV file creation every Monday-Friday
-        schedule.every().monday.at("15:00").do(write_csv)
-        schedule.every().tuesday.at("15:00").do(write_csv)
-        schedule.every().wednesday.at("15:00").do(write_csv)
-        schedule.every().thursday.at("15:00").do(write_csv)
-        schedule.every().friday.at("15:00").do(write_csv)
-        schedule.every().saturday.at("15:00").do(write_csv)
-        schedule.every().sunday.at("15:00").do(write_csv)
-        # schedule.every().friday.at("16:00").do(end_scheduler)
+        schedule.every().monday.at("21:30").do(write_csv)
+        schedule.every().tuesday.at("21:30").do(write_csv)
+        schedule.every().wednesday.at("21:30").do(write_csv)
+        schedule.every().thursday.at("21:30").do(write_csv)
+        schedule.every().friday.at("21:30").do(write_csv)
+        schedule.every().saturday.at("21:30").do(write_csv)
+        schedule.every().sunday.at("21:30").do(write_csv)
 
         # Continuously run pending jobs
         while True and running:
             schedule.run_pending()
-            time.sleep(1)
+            time.sleep(0.5)
 
 if __name__ == "__main__":
     main()
