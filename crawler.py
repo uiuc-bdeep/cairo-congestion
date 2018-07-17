@@ -85,13 +85,12 @@ def request_API(origin, destination, mode):
                                 try:
                                     duration_in_traffic = elem['duration_in_traffic']['value']
                                 except:
-                                    print("duration_in_traffic doesn't exist.")
+                                    slack_notification("duration_in_traffic doesn't exist.")
                         except:
-                            print("Error occurred when parsing response.")
+                            slack_notification("Error occurred when parsing response.")
 
                     else:
-                        print("Element status is not OK: " + elem['status'])
-                        print(mode)
+                        slack_notification("Element status is not OK: " + elem['status'])
 
         else:
             print("Request status is not OK: " + response['status'])
